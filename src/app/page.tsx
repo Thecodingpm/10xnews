@@ -3,128 +3,26 @@ import HeroSection from '@/components/blog/HeroSection'
 import PostCard from '@/components/blog/PostCard'
 import { HeaderAd, SidebarAd } from '@/components/AdSlot'
 
-async function getFeaturedPosts() {
-  try {
-    const posts = await prisma.post.findMany({
-      where: {
-        published: true,
-        featured: true,
-      },
-      include: {
-        author: {
-          select: {
-            name: true,
-            image: true,
-          },
-        },
-        category: {
-          select: {
-            name: true,
-            slug: true,
-            color: true,
-          },
-        },
-      },
-      orderBy: {
-        publishedAt: 'desc',
-      },
-      take: 5,
-    })
-
-    return posts
-  } catch (error) {
-    console.error('Error fetching featured posts:', error)
-    // Return sample data if database is not connected
-    return [
-      {
-        id: '1',
-        title: 'Welcome to Your Blog',
-        slug: 'welcome-to-your-blog',
-        excerpt: 'This is a sample featured post. Set up your database to see real content.',
-        coverImage: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=1200&h=630&fit=crop',
-        author: { name: 'Admin', image: null },
-        publishedAt: new Date(),
-        readTime: 3,
-        views: 0,
-        category: { name: 'General', slug: 'general', color: 'bg-blue-500' },
-        tags: ['welcome', 'blog'],
-        featured: true,
-        sponsored: false,
-      }
-    ]
-  }
-}
-
-async function getLatestPosts() {
-  try {
-    const posts = await prisma.post.findMany({
-      where: {
-        published: true,
-      },
-      include: {
-        author: {
-          select: {
-            name: true,
-            image: true,
-          },
-        },
-        category: {
-          select: {
-            name: true,
-            slug: true,
-            color: true,
-          },
-        },
-      },
-      orderBy: {
-        publishedAt: 'desc',
-      },
-      take: 6,
-    })
-
-    return posts
-  } catch (error) {
-    console.error('Error fetching latest posts:', error)
-    // Return sample data if database is not connected
-    return [
-      {
-        id: '1',
-        title: 'Getting Started with Next.js',
-        slug: 'getting-started-with-nextjs',
-        excerpt: 'Learn how to build modern web applications with Next.js.',
-        coverImage: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&h=630&fit=crop',
-        author: { name: 'Admin', image: null },
-        publishedAt: new Date(),
-        readTime: 5,
-        views: 100,
-        category: { name: 'Technology', slug: 'technology', color: 'bg-blue-500' },
-        tags: ['nextjs', 'react', 'javascript'],
-        featured: false,
-        sponsored: false,
-      },
-      {
-        id: '2',
-        title: 'Mastering TypeScript',
-        slug: 'mastering-typescript',
-        excerpt: 'Advanced TypeScript patterns for better code quality.',
-        coverImage: 'https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=1200&h=630&fit=crop',
-        author: { name: 'Admin', image: null },
-        publishedAt: new Date(),
-        readTime: 8,
-        views: 75,
-        category: { name: 'Programming', slug: 'programming', color: 'bg-green-500' },
-        tags: ['typescript', 'programming', 'javascript'],
-        featured: false,
-        sponsored: false,
-      }
-    ]
-  }
-}
-
 export default async function Home() {
   const [featuredPosts, latestPosts] = await Promise.all([
-    getFeaturedPosts(),
-    getLatestPosts(),
+    prisma.post.findMany({
+      where: { published: true, featured: true },
+      include: {
+        author: { select: { name: true } },
+        category: { select: { name: true, color: true } }
+      },
+      orderBy: { publishedAt: 'desc' },
+      take: 3
+    }),
+    prisma.post.findMany({
+      where: { published: true },
+      include: {
+        author: { select: { name: true } },
+        category: { select: { name: true, color: true } }
+      },
+      orderBy: { publishedAt: 'desc' },
+      take: 6
+    })
   ])
 
   return (
@@ -153,8 +51,8 @@ export default async function Home() {
                   className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
                 >
                   View all articles →
-                </a>
-              </div>
+          </a>
+        </div>
 
               {latestPosts.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

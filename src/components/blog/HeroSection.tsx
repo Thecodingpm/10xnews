@@ -37,17 +37,22 @@ interface HeroSectionProps {
 export default function HeroSection({ featuredPosts }: HeroSectionProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
 
+  // Add safety check for featuredPosts
+  const safeFeaturedPosts = featuredPosts || []
+
   useEffect(() => {
+    if (safeFeaturedPosts.length === 0) return
+    
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => 
-        prevIndex === featuredPosts.length - 1 ? 0 : prevIndex + 1
+        prevIndex === safeFeaturedPosts.length - 1 ? 0 : prevIndex + 1
       )
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [featuredPosts.length])
+  }, [safeFeaturedPosts.length])
 
-  if (featuredPosts.length === 0) {
+  if (safeFeaturedPosts.length === 0) {
     return (
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -71,7 +76,7 @@ export default function HeroSection({ featuredPosts }: HeroSectionProps) {
     )
   }
 
-  const currentPost = featuredPosts[currentIndex]
+  const currentPost = safeFeaturedPosts[currentIndex]
 
   return (
     <section className="relative bg-gray-900 text-white overflow-hidden">
@@ -178,7 +183,7 @@ export default function HeroSection({ featuredPosts }: HeroSectionProps) {
           {/* Featured Posts List */}
           <div className="space-y-4">
             <h3 className="text-2xl font-bold mb-6">Featured Articles</h3>
-            {featuredPosts.map((post, index) => (
+            {safeFeaturedPosts.map((post, index) => (
               <motion.div
                 key={post.id}
                 className={`p-4 rounded-lg cursor-pointer transition-all duration-300 ${
@@ -222,7 +227,7 @@ export default function HeroSection({ featuredPosts }: HeroSectionProps) {
 
       {/* Navigation Dots */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2">
-        {featuredPosts.map((_, index) => (
+        {safeFeaturedPosts.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentIndex(index)}

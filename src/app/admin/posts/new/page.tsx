@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
@@ -10,6 +10,8 @@ export default function NewPostPage() {
   const { data: session } = useSession()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [categories, setCategories] = useState([])
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -25,6 +27,20 @@ export default function NewPostPage() {
     seoDescription: '',
     keywords: '',
   })
+
+  // Fetch categories on component mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/categories')
+        const data = await response.json()
+        setCategories(data.categories || [])
+      } catch (error) {
+        console.error('Error fetching categories:', error)
+      }
+    }
+    fetchCategories()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,10 +62,15 @@ export default function NewPostPage() {
       if (response.ok) {
         router.push('/admin/dashboard')
       } else {
-        console.error('Error creating post')
+        const errorData = await response.json()
+        console.error('Error creating post:', errorData)
+        console.error('Response status:', response.status)
+        console.error('Response headers:', Object.fromEntries(response.headers.entries()))
+        setError(errorData.error || errorData.details || `Failed to create post (Status: ${response.status})`)
       }
     } catch (error) {
       console.error('Error creating post:', error)
+      setError(`Network error: ${error.message}`)
     } finally {
       setLoading(false)
     }
@@ -105,6 +126,14 @@ export default function NewPostPage() {
 
       {/* Form */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {error && (
+          <div className="mb-6 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-md p-4">
+            <div className="text-red-800 dark:text-red-200 text-sm">
+              {error}
+            </div>
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -158,6 +187,25 @@ export default function NewPostPage() {
               </div>
 
               <div>
+                <label htmlFor="categoryId" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Category (Optional)
+                </label>
+                <select
+                  id="categoryId"
+                  value={formData.categoryId}
+                  onChange={(e) => setFormData(prev => ({ ...prev, categoryId: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                >
+                  <option value="">Select a category</option>
+                  {categories.map((category: any) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
                 <label htmlFor="content" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Content *
                 </label>
@@ -174,16 +222,67 @@ export default function NewPostPage() {
 
               <div>
                 <label htmlFor="coverImage" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Cover Image URL
+                  Cover Image (Optional)
                 </label>
-                <input
-                  type="url"
-                  id="coverImage"
-                  value={formData.coverImage}
-                  onChange={(e) => setFormData(prev => ({ ...prev, coverImage: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  placeholder="https://example.com/image.jpg"
-                />
+                <div className="space-y-4">
+                  {/* URL Input */}
+                  <div>
+                    <label htmlFor="coverImageUrl" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                      Image URL
+                    </label>
+                    <input
+                      type="url"
+                      id="coverImageUrl"
+                      value={formData.coverImage}
+                      onChange={(e) => setFormData(prev => ({ ...prev, coverImage: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="https://example.com/image.jpg"
+                    />
+                  </div>
+                  
+                  {/* File Upload */}
+                  <div>
+                    <label htmlFor="coverImageFile" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                      Or Upload Image
+                    </label>
+                    <input
+                      type="file"
+                      id="coverImageFile"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          // Convert file to data URL for preview
+                          const reader = new FileReader()
+                          reader.onload = (event) => {
+                            setFormData(prev => ({ ...prev, coverImage: event.target?.result as string }))
+                          }
+                          reader.readAsDataURL(file)
+                        }
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    />
+                  </div>
+                  
+                  {/* Image Preview */}
+                  {formData.coverImage && (
+                    <div className="mt-4">
+                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+                        Preview
+                      </label>
+                      <div className="relative w-full h-48 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+                        <img
+                          src={formData.coverImage}
+                          alt="Cover preview"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none'
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

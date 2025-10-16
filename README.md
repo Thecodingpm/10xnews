@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Modern Blogging Website
 
 A complete, SEO-optimized blogging platform built with Next.js, Tailwind CSS, and MongoDB. Features include admin dashboard, monetization support, and comprehensive SEO optimization.
@@ -236,6 +235,3 @@ For support and questions:
 ---
 
 **Happy Blogging! 🎉**
-=======
-# 10xnews
->>>>>>> 99788b6ce69b163efaa926566dd67b352e7da056

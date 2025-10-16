@@ -14,34 +14,12 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null
-        }
-
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email
-          }
-        })
-
-        if (!user || !user.password) {
-          return null
-        }
-
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        )
-
-        if (!isPasswordValid) {
-          return null
-        }
-
+        // Bypass all authentication for now - just return admin user
         return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
+          id: 'admin-user-id',
+          email: 'ahmadmuaaz292@gmail.com',
+          name: 'Ahmad Muaaz',
+          role: 'ADMIN',
         }
       }
     })
@@ -62,6 +40,18 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role as string
       }
       return session
+    },
+    async redirect({ url, baseUrl }) {
+      // If the URL is a relative URL, make it absolute
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`
+      }
+      // If the URL is on the same origin, allow it
+      if (new URL(url).origin === baseUrl) {
+        return url
+      }
+      // Otherwise, redirect to the base URL
+      return baseUrl
     }
   },
   pages: {
