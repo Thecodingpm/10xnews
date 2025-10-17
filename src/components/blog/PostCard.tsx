@@ -9,19 +9,19 @@ interface PostCardProps {
     title: string
     slug: string
     excerpt: string
-    coverImage?: string
+    coverImage?: string | null
     author: {
       name: string
       image?: string | null
     }
-    publishedAt: Date
+    publishedAt: Date | null
     readTime: number
     views: number
     category?: {
       name: string
       slug: string
-      color?: string
-    }
+      color?: string | null
+    } | null
     tags: string[]
     featured?: boolean
     sponsored?: boolean
@@ -117,7 +117,7 @@ export default function PostCard({ post, featured = false }: PostCardProps) {
                   {post.author.name}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {formatDate(post.publishedAt)}
+                  {post.publishedAt ? formatDate(post.publishedAt) : 'Draft'}
                 </p>
               </div>
             </div>

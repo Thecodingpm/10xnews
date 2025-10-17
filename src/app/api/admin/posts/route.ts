@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
       content,
       excerpt,
       coverImage,
+      images,
       published,
       featured,
       sponsored,
@@ -79,6 +80,7 @@ export async function POST(request: NextRequest) {
       content,
       excerpt,
       coverImage: coverImage || null,
+      images: images || [], // Add images array
       published: published || false,
       featured: featured || false,
       sponsored: sponsored || false,

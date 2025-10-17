@@ -4,6 +4,7 @@ import "./globals.css";
 import Layout from "@/components/layout/Layout";
 import SessionProvider from "@/components/providers/SessionProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -73,14 +74,16 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
           <SessionProvider>
-            <Layout>
-              {children}
-            </Layout>
+            <AdminAuthProvider>
+              <Layout>
+                {children}
+              </Layout>
+            </AdminAuthProvider>
           </SessionProvider>
         </ThemeProvider>
       </body>

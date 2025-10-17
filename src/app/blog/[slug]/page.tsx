@@ -4,6 +4,7 @@ import { formatDate } from '@/lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ClockIcon, EyeIcon, CalendarIcon, ArrowLeftIcon } from '@heroicons/react/24/outline'
+import MultiImageContent from '@/components/blog/MultiImageContent'
 import type { Metadata } from 'next'
 
 interface BlogPostPageProps {
@@ -160,9 +161,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         )}
 
         {/* Content */}
-        <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-a:text-blue-600 dark:prose-a:text-blue-400">
-          <div dangerouslySetInnerHTML={{ __html: post.content }} />
-        </div>
+        <MultiImageContent 
+          content={post.content} 
+          images={post.images || []} 
+        />
 
 
         {/* Tags */}

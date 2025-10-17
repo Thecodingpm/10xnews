@@ -34,6 +34,7 @@ export default function NewPostPage() {
     seoTitle: '',
     seoDescription: '',
     keywords: '',
+    images: [] as string[], // Array for multiple images
   })
 
   // Fetch categories on component mount
@@ -125,6 +126,27 @@ export default function NewPostPage() {
       title,
       slug: uniqueSlug,
       seoTitle: title,
+    }))
+  }
+
+  const addImage = () => {
+    setFormData(prev => ({
+      ...prev,
+      images: [...prev.images, '']
+    }))
+  }
+
+  const removeImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }))
+  }
+
+  const updateImage = (index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.map((img, i) => i === index ? value : img)
     }))
   }
 
@@ -325,6 +347,47 @@ export default function NewPostPage() {
                       </div>
                     </div>
                   )}
+                </div>
+              </div>
+
+              {/* Additional Images Section */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Additional Images (Optional)
+                </label>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                  Add multiple images that will be embedded throughout your content
+                </p>
+                
+                <div className="space-y-4">
+                  {formData.images.map((image, index) => (
+                    <div key={index} className="flex gap-4 items-start">
+                      <div className="flex-1">
+                        <input
+                          type="url"
+                          value={image}
+                          onChange={(e) => updateImage(index, e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          placeholder={`Image ${index + 1} URL`}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="px-3 py-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                  
+                  <button
+                    type="button"
+                    onClick={addImage}
+                    className="w-full px-4 py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md text-gray-600 dark:text-gray-400 hover:border-blue-500 hover:text-blue-500 dark:hover:border-blue-400 dark:hover:text-blue-400 transition-colors"
+                  >
+                    + Add Image
+                  </button>
                 </div>
               </div>
             </div>

@@ -1,11 +1,13 @@
-import { Metadata } from 'next'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'About Us | 10xNews',
-  description: 'Learn about 10xNews - Your premier source for breaking tech news, startup insights, and industry analysis.',
-}
+import { useRouter } from 'next/navigation'
 
 export default function AboutPage() {
+  const router = useRouter()
+
+  const handleAdminLogin = () => {
+    router.push('/admin/login')
+  }
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -105,6 +107,21 @@ export default function AboutPage() {
                   International tech news and insights
                 </p>
               </div>
+            </div>
+          </div>
+
+          {/* Admin Login Button - Hidden at bottom */}
+          <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700">
+            <div className="text-center">
+              <button
+                onClick={handleAdminLogin}
+                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                Admin Login
+              </button>
             </div>
           </div>
         </div>

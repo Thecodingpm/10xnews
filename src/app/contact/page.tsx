@@ -1,18 +1,29 @@
-import { Metadata } from 'next'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'Contact Us | 10xNews',
-  description: 'Get in touch with the 10xNews team. We welcome your feedback, story tips, and inquiries.',
-}
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function ContactPage() {
+  const [clickCount, setClickCount] = useState(0)
+  const router = useRouter()
+
+  const handleHiddenClick = () => {
+    setClickCount(prev => prev + 1)
+    if (clickCount >= 4) { // 5 clicks total
+      router.push('/admin/login')
+    }
+  }
   return (
     <div className="min-h-screen">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            <h1 
+              className="text-4xl md:text-5xl font-bold mb-4 cursor-pointer select-none"
+              onClick={handleHiddenClick}
+              title="Click 5 times for admin access"
+            >
               Contact Us
             </h1>
             <p className="text-xl text-blue-100 max-w-2xl mx-auto">

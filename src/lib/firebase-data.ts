@@ -23,6 +23,7 @@ export interface Post {
   content: string
   excerpt: string
   coverImage: string | null
+  images: string[] // Array of additional images
   published: boolean
   featured: boolean
   sponsored: boolean
