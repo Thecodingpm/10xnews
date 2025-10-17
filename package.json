@@ -7,8 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "tsx scripts/firebase-seed.ts",
-    "seed-firebase": "tsx scripts/firebase-sample-data.ts"
+    "seed": "tsx scripts/simple-seed.ts",
+    "seed-firebase": "tsx scripts/firebase-sample-data.ts",
+    "seed-firebase-simple": "tsx scripts/firebase-simple-seed.ts"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",

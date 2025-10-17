@@ -3,7 +3,6 @@ import { getPosts, getFeaturedPosts } from '@/lib/firebase-data'
 // import HeroSection from '@/components/blog/HeroSection'
 // import PostCard from '@/components/blog/PostCard'
 // import { HeaderAd, SidebarAd } from '@/components/AdSlot'
-import { AdSpace } from '@/components/AdDetection'
 import Link from 'next/link'
 
 export default async function Home() {
@@ -43,7 +42,7 @@ export default async function Home() {
       ])
       featuredPosts = firebaseFeatured || []
       latestPosts = firebaseLatest || []
-      console.log('Fetched from Firebase')
+      console.log('Fetched from Firebase - Featured:', featuredPosts.length, 'Latest:', latestPosts.length)
     } catch (firebaseError) {
       console.log('Firebase not available, trying Prisma...', firebaseError)
       
@@ -83,7 +82,7 @@ export default async function Home() {
 
   console.log('Featured posts:', featuredPosts.length)
   console.log('Latest posts:', latestPosts.length)
-  console.log('Latest posts data:', latestPosts.map(p => ({ id: p.id, title: p.title, publishedAt: p.publishedAt })))
+  console.log('Latest posts data:', latestPosts.map(p => ({ id: p.id, title: p.title, published: p.published, publishedAt: p.publishedAt })))
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
@@ -94,19 +93,13 @@ export default async function Home() {
           {latestPosts.length > 0 ? (
             latestPosts.map((post, index) => (
               <div key={post.id}>
-                {/* Ad Space - Every 3rd article */}
-                {index > 0 && index % 3 === 0 && (
-                  <div className="my-8">
-                    <AdSpace size="medium" />
-                  </div>
-                )}
                 
                 {/* Article Card */}
                 <article className="group">
                   <div className="flex flex-col md:flex-row gap-4">
                     {/* Image */}
-                    <div className="md:w-1/3">
-                      <div className="aspect-video md:aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                    <div className="md:w-2/5">
+                      <div className="aspect-video md:aspect-[4/3] bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
                         {post.coverImage ? (
                           <img
                             src={post.coverImage}
@@ -122,7 +115,7 @@ export default async function Home() {
                     </div>
                     
                     {/* Content */}
-                    <div className="md:w-2/3 flex flex-col justify-between">
+                    <div className="md:w-3/5 flex flex-col justify-between">
                       <div>
                         {/* Category */}
                         <div className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-2">
@@ -176,10 +169,6 @@ export default async function Home() {
           )}
         </div>
 
-        {/* Bottom Ad */}
-        <div className="mt-12">
-          <AdSpace size="medium" />
-        </div>
       </div>
     </div>
   )

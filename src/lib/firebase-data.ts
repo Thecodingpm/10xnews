@@ -29,7 +29,7 @@ export interface Post {
   authorId: string
   author: {
     name: string
-    image?: string
+    image?: string | null
   }
   categoryId?: string
   category: {
@@ -62,7 +62,7 @@ export interface User {
   id: string
   name?: string
   email: string
-  image?: string
+  image?: string | null
   role: 'USER' | 'ADMIN'
   createdAt: Date
   updatedAt: Date
@@ -76,11 +76,10 @@ const usersCollection = collection(db, 'users')
 // Posts Functions
 export async function getPosts(whereClause?: unknown, orderByClause?: unknown, limitCount?: number) {
   try {
-    // Default to published posts only
+    // For debugging, let's fetch all posts first
     let q = query(
       postsCollection, 
-      where('published', '==', true),
-      orderBy('publishedAt', 'desc')
+      orderBy('createdAt', 'desc')
     )
     
     if (limitCount) {
@@ -88,6 +87,7 @@ export async function getPosts(whereClause?: unknown, orderByClause?: unknown, l
     }
     
     const snapshot = await getDocs(q)
+    console.log('Firebase getPosts: Found', snapshot.docs.length, 'total posts')
     const posts: Post[] = []
     
     for (const docSnapshot of snapshot.docs) {
@@ -116,6 +116,8 @@ export async function getPosts(whereClause?: unknown, orderByClause?: unknown, l
         publishedAt: postData.publishedAt?.toDate() || null,
       } as Post
       
+      console.log('Post:', post.title, 'published:', post.published, 'publishedAt:', post.publishedAt)
+      
       // Get author data
       if (post.authorId) {
         try {
@@ -129,7 +131,7 @@ export async function getPosts(whereClause?: unknown, orderByClause?: unknown, l
           }
         } catch (error) {
           console.error('Error fetching author:', error)
-          post.author = { name: 'Unknown', image: undefined }
+          post.author = { name: 'Unknown', image: null }
         }
       }
       
@@ -197,6 +199,64 @@ export async function getFeaturedPosts(limitCount: number = 3): Promise<Post[]> 
   }
 }
 
+export async function getPostById(id: string): Promise<Post | null> {
+  try {
+    const postDoc = await getDoc(doc(postsCollection, id))
+    
+    if (!postDoc.exists()) return null
+    
+    const postData = postDoc.data()
+    
+    const post: Post = {
+      id: postDoc.id,
+      ...postData,
+      coverImage: postData.coverImage || null,
+      createdAt: postData.createdAt?.toDate() || new Date(),
+      updatedAt: postData.updatedAt?.toDate() || new Date(),
+      publishedAt: postData.publishedAt?.toDate() || null,
+    } as Post
+    
+    // Get author data
+    if (post.authorId) {
+      try {
+        const authorDoc = await getDoc(doc(usersCollection, post.authorId))
+        if (authorDoc.exists()) {
+          const authorData = authorDoc.data()
+          post.author = {
+            name: authorData.name || 'Unknown',
+            image: authorData.image,
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching author:', error)
+        post.author = { name: 'Unknown', image: null }
+      }
+    }
+    
+    // Get category data
+    if (post.categoryId) {
+      try {
+        const categoryDoc = await getDoc(doc(categoriesCollection, post.categoryId))
+        if (categoryDoc.exists()) {
+          const categoryData = categoryDoc.data()
+          post.category = {
+            name: categoryData.name,
+            slug: categoryData.slug,
+            color: categoryData.color,
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching category:', error)
+      }
+    }
+    
+    return post
+  } catch (error) {
+    console.error('Error fetching post by ID:', error)
+    return null
+  }
+}
+
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   try {
     // Use a simple query for slug only
@@ -205,14 +265,22 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     
     if (snapshot.empty) return null
     
-    const docSnapshot = snapshot.docs[0]
-    const postData = docSnapshot.data()
+    // Find the first published post with this slug
+    let publishedPost = null
+    for (const docSnapshot of snapshot.docs) {
+      const postData = docSnapshot.data()
+      if (postData.published) {
+        publishedPost = docSnapshot
+        break
+      }
+    }
     
-    // Check if published in memory
-    if (!postData.published) return null
+    if (!publishedPost) return null
+    
+    const postData = publishedPost.data()
     
     const post: Post = {
-      id: docSnapshot.id,
+      id: publishedPost.id,
       ...postData,
       createdAt: postData.createdAt?.toDate() || new Date(),
       updatedAt: postData.updatedAt?.toDate() || new Date(),
@@ -232,7 +300,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
         }
       } catch (error) {
         console.error('Error fetching author:', error)
-        post.author = { name: 'Unknown', image: undefined }
+        post.author = { name: 'Unknown', image: null }
       }
     }
     

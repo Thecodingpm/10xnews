@@ -1,15 +1,19 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 
-export default function NewPostPage() {
+export default function EditPostPage() {
   const { data: session } = useSession()
   const router = useRouter()
+  const params = useParams()
+  const postId = params.id as string
+  
   const [loading, setLoading] = useState(false)
+  const [fetching, setFetching] = useState(true)
   const [error, setError] = useState('')
   const [categories, setCategories] = useState<Array<{id: string, name: string}>>([])
   const [formData, setFormData] = useState({
@@ -28,45 +32,59 @@ export default function NewPostPage() {
     keywords: '',
   })
 
-  // Fetch categories on component mount
+  // Fetch post data and categories on component mount
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('/api/categories')
-        const data = await response.json()
-        setCategories(data.categories || [])
+        // Fetch post data
+        const postResponse = await fetch(`/api/admin/posts/${postId}`)
+        if (postResponse.ok) {
+          const postData = await postResponse.json()
+          const post = postData.post
+          
+          setFormData({
+            title: post.title || '',
+            slug: post.slug || '',
+            content: post.content || '',
+            excerpt: post.excerpt || '',
+            coverImage: post.coverImage || '',
+            published: post.published || false,
+            featured: post.featured || false,
+            sponsored: post.sponsored || false,
+            categoryId: post.categoryId || '',
+            tags: post.tags ? post.tags.join(', ') : '',
+            seoTitle: post.seoTitle || post.title || '',
+            seoDescription: post.seoDescription || post.excerpt || '',
+            keywords: post.keywords ? post.keywords.join(', ') : '',
+          })
+        } else {
+          setError('Post not found')
+        }
+
+        // Fetch categories
+        const categoriesResponse = await fetch('/api/categories')
+        if (categoriesResponse.ok) {
+          const categoriesData = await categoriesResponse.json()
+          setCategories(categoriesData.categories || [])
+        }
       } catch (error) {
-        console.error('Error fetching categories:', error)
+        console.error('Error fetching data:', error)
+        setError('Failed to load post data')
+      } finally {
+        setFetching(false)
       }
     }
-    fetchCategories()
-  }, [])
+
+    fetchData()
+  }, [postId])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      // First test with simple endpoint
-      console.log('Testing with simple endpoint...')
-      const testResponse = await fetch('/api/test', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ test: 'data' }),
-      })
-      
-      if (testResponse.ok) {
-        const testData = await testResponse.json()
-        console.log('Test API response:', testData)
-      } else {
-        console.error('Test API failed:', testResponse.status)
-      }
-
-      console.log('Now trying admin posts API...')
-      const response = await fetch('/api/admin/posts', {
-        method: 'POST',
+      const response = await fetch(`/api/admin/posts/${postId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -77,29 +95,21 @@ export default function NewPostPage() {
         }),
       })
 
-      console.log('Response status:', response.status)
-      console.log('Response ok:', response.ok)
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
-      
       if (response.ok) {
         router.push('/admin/dashboard')
       } else {
-        // Try to get response as text first to see what we're actually getting
         const responseText = await response.text()
         console.error('Raw response text:', responseText)
         
         try {
           const errorData = JSON.parse(responseText)
-          console.error('Parsed error data:', errorData)
-          setError(errorData.error || errorData.details || `Failed to create post (Status: ${response.status})`)
+          setError(errorData.error || `Failed to update post (Status: ${response.status})`)
         } catch (parseError) {
-          console.error('Failed to parse response as JSON:', parseError)
-          console.error('Response was not JSON, it was:', responseText.substring(0, 200))
           setError(`Server returned non-JSON response (Status: ${response.status}): ${responseText.substring(0, 100)}...`)
         }
       }
     } catch (error) {
-      console.error('Error creating post:', error)
+      console.error('Error updating post:', error)
       setError(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setLoading(false)
@@ -118,6 +128,17 @@ export default function NewPostPage() {
       slug: uniqueSlug,
       seoTitle: title,
     }))
+  }
+
+  if (fetching) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading post...</p>
+        </div>
+      </div>
+    )
   }
 
   if (!session || session.user.role !== 'ADMIN') {
@@ -149,10 +170,10 @@ export default function NewPostPage() {
             </Link>
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Create New Post
+                Edit Post
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                Write and publish a new blog post
+                Update your blog post
               </p>
             </div>
           </div>
@@ -232,7 +253,7 @@ export default function NewPostPage() {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 >
                   <option value="">Select a category</option>
-                        {categories.map((category: {id: string, name: string}) => (
+                  {categories.map((category: {id: string, name: string}) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
                     </option>
@@ -445,7 +466,7 @@ export default function NewPostPage() {
               disabled={loading}
               className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? 'Creating...' : 'Create Post'}
+              {loading ? 'Updating...' : 'Update Post'}
             </button>
           </div>
         </form>

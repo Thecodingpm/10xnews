@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/prisma'
 import PostCard from '@/components/blog/PostCard'
-import { HeaderAd, SidebarAd } from '@/components/AdSlot'
 import { notFound } from 'next/navigation'
 
 interface CategoryPageProps {
@@ -94,7 +93,6 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
       {/* Header Ad */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <HeaderAd />
       </div>
 
       {/* Main Content */}
@@ -110,7 +108,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                     coverImage: post.coverImage || undefined,
                     author: {
                       name: post.author.name || '10xNews Staff',
-                      image: undefined
+                      image: null
                     },
                     publishedAt: post.publishedAt || new Date(),
                     readTime: post.readTime || 5,
@@ -142,7 +140,6 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <div className="lg:col-span-1">
             <div className="sticky top-8 space-y-8">
               {/* Sidebar Ad */}
-              <SidebarAd />
 
               {/* Category Info */}
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">

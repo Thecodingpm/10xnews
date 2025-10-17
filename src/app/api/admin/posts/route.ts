@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { createPost, getPosts } from '@/lib/firebase-data'
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,28 +11,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    if (!prisma) {
-      return NextResponse.json({ error: 'Database not available' }, { status: 503 })
-    }
-
-    const posts = await prisma.post.findMany({
-      include: {
-        author: {
-          select: {
-            name: true,
-          },
-        },
-        category: {
-          select: {
-            name: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    })
-
+    const posts = await getPosts()
     return NextResponse.json({ posts })
   } catch (error) {
     console.error('Error fetching posts:', error)
@@ -60,10 +39,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    if (!prisma) {
-      return NextResponse.json({ error: 'Database not available' }, { status: 503 })
-    }
-
     const body = await request.json()
     console.log('Request body received:', { 
       title: body.title, 
@@ -88,55 +63,36 @@ export async function POST(request: NextRequest) {
       keywords,
     } = body
 
-    // Find or create admin user since we bypassed auth
-    console.log('Looking for admin user...')
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let adminUser: any = await prisma.user.findFirst({
-      where: { role: 'ADMIN' }
-    })
-    console.log('Admin user found:', adminUser ? 'Yes' : 'No')
-
-    if (!adminUser) {
-      console.log('Creating admin user...')
-      // Create admin user if not found
-      adminUser = await prisma.user.create({
-        data: {
-            email: 'admin@10xnews.com',
-            name: '10xNews Staff',
-          role: 'ADMIN',
-        }
-      })
-      console.log('Admin user created:', adminUser?.id)
-    }
-
-    if (!adminUser) {
-      console.log('Failed to create or find admin user')
-      return NextResponse.json({ error: 'Failed to create admin user' }, { status: 500 })
-    }
-
-    console.log('Creating post with authorId:', adminUser.id)
-    const post = await prisma.post.create({
-      data: {
-        title,
-        slug,
-        content,
-        excerpt,
-        coverImage,
-        published: published || false,
-        featured: featured || false,
-        sponsored: sponsored || false,
-        authorId: adminUser.id,
-        categoryId: categoryId || null,
-        tags: tags || [],
-        seoTitle,
-        seoDescription,
-        keywords: keywords || [],
-        readTime: Math.ceil(content.replace(/<[^>]*>/g, '').split(/\s+/).length / 200),
-        publishedAt: published ? new Date() : null,
+    // Create post data for Firebase
+    const postData = {
+      title,
+      slug,
+      content,
+      excerpt,
+      coverImage: coverImage || null,
+      published: published || false,
+      featured: featured || false,
+      sponsored: sponsored || false,
+      authorId: 'admin-user-id', // We'll use a fixed admin user ID for now
+      author: {
+        name: '10xNews Staff',
+        image: null
       },
-    })
+      categoryId: categoryId || null,
+      category: null, // Will be populated by Firebase function
+      tags: tags || [],
+      seoTitle: seoTitle || title,
+      seoDescription: seoDescription || excerpt,
+      keywords: keywords || [],
+      views: 0,
+      readTime: Math.ceil((content || '').replace(/<[^>]*>/g, '').split(/\s+/).length / 200) || 1,
+      publishedAt: published ? new Date() : null,
+    }
 
+    console.log('Creating post in Firebase...')
+    const post = await createPost(postData)
     console.log('Post created successfully:', post.id)
+    
     return NextResponse.json({ post })
   } catch (error: unknown) {
     console.error('Error creating post:', error)

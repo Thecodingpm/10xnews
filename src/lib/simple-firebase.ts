@@ -29,7 +29,7 @@ export interface SimplePost {
   authorId: string
   author: {
     name: string
-    image?: string
+    image?: string | null
   }
   categoryId?: string
   category?: {
@@ -68,9 +68,9 @@ export async function getAllPosts(): Promise<SimplePost[]> {
         featured: postData.featured || false,
         sponsored: postData.sponsored || false,
         authorId: postData.authorId || '',
-        author: { name: 'Unknown', image: undefined },
+        author: { name: 'Unknown', image: null },
         categoryId: postData.categoryId,
-        category: undefined,
+        category: null,
         tags: postData.tags || [],
         seoTitle: postData.seoTitle,
         seoDescription: postData.seoDescription,

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { getPostById, updatePost, deletePost } from '@/lib/firebase-data'
 
 export async function GET(
   request: NextRequest,
@@ -15,25 +15,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    if (!prisma) {
-      return NextResponse.json({ error: 'Database not available' }, { status: 503 })
-    }
-
-    const post = await prisma.post.findUnique({
-      where: { id: resolvedParams.id },
-      include: {
-        author: {
-          select: {
-            name: true,
-          },
-        },
-        category: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    })
+    const post = await getPostById(resolvedParams.id)
 
     if (!post) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 })
@@ -58,10 +40,6 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    if (!prisma) {
-      return NextResponse.json({ error: 'Database not available' }, { status: 503 })
-    }
-
     const body = await request.json()
     const {
       title,
@@ -79,27 +57,25 @@ export async function PUT(
       keywords,
     } = body
 
-    const post = await prisma.post.update({
-      where: { id: resolvedParams.id },
-      data: {
-        title,
-        slug,
-        content,
-        excerpt,
-        coverImage,
-        published: published || false,
-        featured: featured || false,
-        sponsored: sponsored || false,
-        categoryId: categoryId || null,
-        tags: tags || [],
-        seoTitle,
-        seoDescription,
-        keywords: keywords || [],
-        readTime: Math.ceil(content.replace(/<[^>]*>/g, '').split(/\s+/).length / 200),
-        publishedAt: published ? new Date() : null,
-        updatedAt: new Date(),
-      },
-    })
+    const updateData = {
+      title,
+      slug,
+      content,
+      excerpt,
+      coverImage: coverImage || null,
+      published: published || false,
+      featured: featured || false,
+      sponsored: sponsored || false,
+      categoryId: categoryId || null,
+      tags: tags || [],
+      seoTitle: seoTitle || title,
+      seoDescription: seoDescription || excerpt,
+      keywords: keywords || [],
+      readTime: Math.ceil((content || '').replace(/<[^>]*>/g, '').split(/\s+/).length / 200) || 1,
+      publishedAt: published ? new Date() : null,
+    }
+
+    const post = await updatePost(resolvedParams.id, updateData)
 
     return NextResponse.json({ post })
   } catch (error) {
@@ -120,13 +96,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    if (!prisma) {
-      return NextResponse.json({ error: 'Database not available' }, { status: 503 })
-    }
-
-    await prisma.post.delete({
-      where: { id: resolvedParams.id },
-    })
+    await deletePost(resolvedParams.id)
 
     return NextResponse.json({ success: true })
   } catch (error) {

@@ -1,7 +1,6 @@
-import { prisma } from '@/lib/prisma'
+import { getPosts as getFirebasePosts, getCategories as getFirebaseCategories } from '@/lib/firebase-data'
 // import PostCard from '@/components/blog/PostCard'
 // import { HeaderAd, SidebarAd } from '@/components/AdSlot'
-import { AdSpace } from '@/components/AdDetection'
 import { MagnifyingGlassIcon as SearchIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import type { Metadata } from 'next'
@@ -18,83 +17,71 @@ interface BlogPageProps {
 async function getPosts(searchParams: Awaited<BlogPageProps['searchParams']>) {
   const page = parseInt(searchParams.page || '1')
   const limit = 9
-  const skip = (page - 1) * limit
 
   try {
-    const where: {
-      published: boolean;
-      OR?: Array<{title?: {contains: string, mode: 'insensitive'}, excerpt?: {contains: string, mode: 'insensitive'}, content?: {contains: string, mode: 'insensitive'}}>;
-      category?: {slug: string};
-      tags?: {has: string};
-    } = {
-      published: true,
-    }
-
-    if (searchParams.search) {
-      where.OR = [
-        { title: { contains: searchParams.search, mode: 'insensitive' } },
-        { excerpt: { contains: searchParams.search, mode: 'insensitive' } },
-        { content: { contains: searchParams.search, mode: 'insensitive' } },
-      ]
-    }
-
-    if (searchParams.category) {
-      where.category = {
-        slug: searchParams.category,
-      }
-    }
-
-    if (searchParams.tag) {
-      where.tags = {
-        has: searchParams.tag,
-      }
-    }
-
-    let posts: Array<{
-      id: string;
-      title: string;
-      slug: string;
-      excerpt: string;
-      coverImage: string | null;
-      publishedAt: Date | null;
-      readTime: number;
-      views: number;
-      author: { name: string | null };
-      category: { name: string; slug: string; color: string | null } | null;
-    }> = []
-    let totalCount = 0
+    // Get all published posts from Firebase
+    const allPosts = await getFirebasePosts()
     
-    if (prisma && process.env.DATABASE_URL) {
-      [posts, totalCount] = await Promise.all([
-        prisma.post.findMany({
-          where,
-          include: {
-            author: {
-              select: {
-                name: true,
-              },
-            },
-            category: {
-              select: {
-                name: true,
-                slug: true,
-                color: true,
-              },
-            },
-          },
-          orderBy: [
-            { publishedAt: 'desc' },
-            { createdAt: 'desc' }
-          ],
-          take: limit,
-          skip,
-        }),
-        prisma.post.count({ where }),
-      ])
+    // Filter posts based on search parameters
+    let filteredPosts = allPosts.filter(post => post.published)
+    
+    // Apply search filter
+    if (searchParams.search) {
+      const searchTerm = searchParams.search.toLowerCase()
+      filteredPosts = filteredPosts.filter(post => 
+        post.title.toLowerCase().includes(searchTerm) ||
+        post.excerpt.toLowerCase().includes(searchTerm) ||
+        post.content.toLowerCase().includes(searchTerm)
+      )
     }
+    
+    // Apply category filter
+    if (searchParams.category) {
+      filteredPosts = filteredPosts.filter(post => 
+        post.category?.slug === searchParams.category
+      )
+    }
+    
+    // Apply tag filter
+    if (searchParams.tag) {
+      filteredPosts = filteredPosts.filter(post => 
+        post.tags.includes(searchParams.tag!)
+      )
+    }
+    
+    // Sort by publishedAt (newest first)
+    filteredPosts.sort((a, b) => {
+      if (!a.publishedAt && !b.publishedAt) return 0
+      if (!a.publishedAt) return 1
+      if (!b.publishedAt) return -1
+      return b.publishedAt.getTime() - a.publishedAt.getTime()
+    })
+    
+    // Apply pagination
+    const totalCount = filteredPosts.length
+    const skip = (page - 1) * limit
+    const posts = filteredPosts.slice(skip, skip + limit)
+    
+    // Transform to match expected format
+    const transformedPosts = posts.map(post => ({
+      id: post.id,
+      title: post.title,
+      slug: post.slug,
+      excerpt: post.excerpt,
+      coverImage: post.coverImage,
+      publishedAt: post.publishedAt,
+      readTime: post.readTime,
+      views: post.views,
+      author: { name: post.author.name },
+      category: post.category ? {
+        name: post.category.name,
+        slug: post.category.slug,
+        color: post.category.color
+      } : null,
+    }))
 
     return {
-      posts,
+      posts: transformedPosts,
       pagination: {
         currentPage: page,
         totalPages: Math.ceil(totalCount / limit),
@@ -109,20 +96,7 @@ async function getPosts(searchParams: Awaited<BlogPageProps['searchParams']>) {
 
 async function getCategories() {
   try {
-    if (!prisma || !process.env.DATABASE_URL) {
-      return []
-    }
-
-    const categories = await prisma.category.findMany({
-      include: {
-        _count: {
-          select: { posts: { where: { published: true } } },
-        },
-      },
-      orderBy: {
-        name: 'asc',
-      },
-    })
+    const categories = await getFirebaseCategories()
     return categories
   } catch (error) {
     console.error('Error fetching categories:', error)
@@ -144,14 +118,6 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
-      {/* Header Ad */}
-      <div className="bg-gray-100 dark:bg-gray-800 py-4">
-        <div className="max-w-4xl mx-auto px-4">
-          <AdSpace size="medium">
-              {/* <HeaderAd /> */}
-          </AdSpace>
-        </div>
-      </div>
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -182,19 +148,13 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           {posts.length > 0 ? (
             posts.map((post, index) => (
               <div key={post.id}>
-                {/* Ad Space - Every 3rd article */}
-                {index > 0 && index % 3 === 0 && (
-                  <div className="my-8">
-                    <AdSpace size="medium" />
-                  </div>
-                )}
                 
                 {/* Article Card */}
                 <article className="group">
                   <div className="flex flex-col md:flex-row gap-4">
                     {/* Image */}
-                    <div className="md:w-1/3">
-                      <div className="aspect-video md:aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                    <div className="md:w-2/5">
+                      <div className="aspect-video md:aspect-[4/3] bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
                         {post.coverImage ? (
                           <img
                             src={post.coverImage}
@@ -210,7 +170,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                     </div>
                     
                     {/* Content */}
-                    <div className="md:w-2/3 flex flex-col justify-between">
+                    <div className="md:w-3/5 flex flex-col justify-between">
                       <div>
                         {/* Category */}
                         <div className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-2">
@@ -277,10 +237,6 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           </div>
         )}
 
-        {/* Bottom Ad */}
-        <div className="mt-12">
-          <AdSpace size="medium" />
-        </div>
       </div>
     </div>
   )

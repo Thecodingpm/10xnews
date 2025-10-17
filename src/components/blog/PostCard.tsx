@@ -12,7 +12,7 @@ interface PostCardProps {
     coverImage?: string
     author: {
       name: string
-      image?: string
+      image?: string | null
     }
     publishedAt: Date
     readTime: number

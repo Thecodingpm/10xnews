@@ -1,10 +1,9 @@
 import { notFound } from 'next/navigation'
-import { prisma } from '@/lib/prisma'
+import { getPostBySlug, incrementPostViews } from '@/lib/firebase-data'
 import { formatDate } from '@/lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ClockIcon, EyeIcon, CalendarIcon, ArrowLeftIcon } from '@heroicons/react/24/outline'
-import { AdSpace } from '@/components/AdDetection'
 import type { Metadata } from 'next'
 
 interface BlogPostPageProps {
@@ -13,42 +12,14 @@ interface BlogPostPageProps {
 
 async function getPost(slug: string) {
   try {
-    if (!prisma || !process.env.DATABASE_URL) {
-      return null
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const post: any = await prisma.post.findUnique({
-      where: {
-        slug: slug,
-        published: true,
-      },
-      include: {
-        author: {
-          select: {
-            name: true,
-            image: true,
-          },
-        },
-        category: {
-          select: {
-            name: true,
-            slug: true,
-            color: true,
-          },
-        },
-      },
-    })
+    const post = await getPostBySlug(slug)
 
     if (!post) {
       return null
     }
 
     // Increment view count
-    await prisma.post.update({
-      where: { id: post.id },
-      data: { views: { increment: 1 } },
-    })
+    await incrementPostViews(post.id)
 
     return post
   } catch (error) {
@@ -110,12 +81,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
-      {/* Header Ad */}
-      <div className="bg-gray-100 dark:bg-gray-800 py-4">
-        <div className="max-w-4xl mx-auto px-4">
-          <AdSpace size="small" />
-        </div>
-      </div>
 
       {/* Article */}
       <article className="max-w-4xl mx-auto px-4 py-8">
@@ -199,10 +164,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <div dangerouslySetInnerHTML={{ __html: post.content }} />
         </div>
 
-        {/* In-Content Ad */}
-        <div className="my-12">
-          <AdSpace size="medium" />
-        </div>
 
         {/* Tags */}
         {post.tags.length > 0 && (
@@ -224,10 +185,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         )}
       </article>
 
-      {/* Bottom Ad */}
-      <div className="max-w-4xl mx-auto px-4 pb-8">
-        <AdSpace size="medium" />
-      </div>
     </div>
   )
 }

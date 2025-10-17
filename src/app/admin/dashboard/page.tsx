@@ -42,9 +42,29 @@ export default function AdminDashboard() {
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch('/api/admin/posts')
+      // Fetch all posts from Firebase (both published and unpublished)
+      const response = await fetch('/api/debug-posts')
       const data = await response.json()
-      setPosts(data.posts || [])
+      
+      // Transform the data to match the expected format
+      const transformedPosts = data.posts.map((post: any) => ({
+        id: post.id,
+        title: post.title,
+        slug: post.slug,
+        published: post.published,
+        featured: post.featured || false,
+        views: post.views || 0,
+        publishedAt: post.publishedAt ? new Date(post.publishedAt) : null,
+        createdAt: new Date(post.createdAt),
+        author: {
+          name: post.author?.name || '10xNews Staff'
+        },
+        category: {
+          name: post.category?.name || 'Tech'
+        }
+      }))
+      
+      setPosts(transformedPosts)
     } catch (error) {
       console.error('Error fetching posts:', error)
     } finally {
