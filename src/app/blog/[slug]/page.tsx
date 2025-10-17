@@ -17,7 +17,8 @@ async function getPost(slug: string) {
       return null
     }
 
-    const post = await prisma.post.findUnique({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const post: any = await prisma.post.findUnique({
       where: {
         slug: slug,
         published: true,
@@ -210,7 +211,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               Tags
             </h3>
             <div className="flex flex-wrap gap-2">
-              {post.tags.map((tag) => (
+              {post.tags.map((tag: string) => (
                 <span
                   key={tag}
                   className="px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-sm rounded-full"

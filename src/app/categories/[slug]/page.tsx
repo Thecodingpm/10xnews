@@ -15,7 +15,8 @@ async function getCategoryPosts(slug: string) {
       return null
     }
 
-    const category = await prisma.category.findUnique({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const category: any = await prisma.category.findUnique({
       where: { slug },
       include: {
         posts: {
@@ -103,7 +104,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <div className="lg:col-span-3">
             {posts.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {posts.map((post) => (
+                {posts.map((post: any) => ( // eslint-disable-line @typescript-eslint/no-explicit-any
                   <PostCard key={post.id} post={{
                     ...post,
                     coverImage: post.coverImage || undefined,

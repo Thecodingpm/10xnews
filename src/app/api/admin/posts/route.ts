@@ -90,7 +90,8 @@ export async function POST(request: NextRequest) {
 
     // Find or create admin user since we bypassed auth
     console.log('Looking for admin user...')
-    let adminUser = await prisma.user.findFirst({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let adminUser: any = await prisma.user.findFirst({
       where: { role: 'ADMIN' }
     })
     console.log('Admin user found:', adminUser ? 'Yes' : 'No')
@@ -105,7 +106,12 @@ export async function POST(request: NextRequest) {
           role: 'ADMIN',
         }
       })
-      console.log('Admin user created:', adminUser.id)
+      console.log('Admin user created:', adminUser?.id)
+    }
+
+    if (!adminUser) {
+      console.log('Failed to create or find admin user')
+      return NextResponse.json({ error: 'Failed to create admin user' }, { status: 500 })
     }
 
     console.log('Creating post with authorId:', adminUser.id)

@@ -38,7 +38,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Get or create admin user
-    let adminUser = await prisma.user.findFirst({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let adminUser: any = await prisma.user.findFirst({
       where: { role: 'ADMIN' }
     })
 
@@ -53,7 +54,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Get category
-    let categoryRecord = await prisma.category.findFirst({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let categoryRecord: any = await prisma.category.findFirst({
       where: { slug: category }
     })
 

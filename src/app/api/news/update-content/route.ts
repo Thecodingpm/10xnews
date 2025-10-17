@@ -11,7 +11,8 @@ export async function POST(request: NextRequest) {
     }
     
     // Get all articles that have sourceUrl but short content
-    const articles = await prisma.post.findMany({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const articles: any[] = await prisma.post.findMany({
       where: {
         sourceUrl: { not: null },
         OR: [

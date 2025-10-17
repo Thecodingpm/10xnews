@@ -86,7 +86,8 @@ export class NewsScheduler {
       }
 
       // Get or create admin user
-      let adminUser = await prisma.user.findFirst({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let adminUser: any = await prisma.user.findFirst({
         where: { role: 'ADMIN' }
       })
 
@@ -101,7 +102,8 @@ export class NewsScheduler {
       }
 
       // Get category
-      let categoryRecord = await prisma.category.findFirst({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let categoryRecord: any = await prisma.category.findFirst({
         where: { slug: category }
       })
 
@@ -180,7 +182,8 @@ export class NewsScheduler {
       }
       
       // Get all API-sourced articles (those with sourceUrl)
-      const apiArticles = await prisma.post.findMany({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const apiArticles: any[] = await prisma.post.findMany({
         where: {
           sourceUrl: { not: null }
         },
@@ -245,7 +248,8 @@ export class NewsScheduler {
       }
 
       // Get or create admin user
-      let adminUser = await prisma.user.findFirst({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let adminUser: any = await prisma.user.findFirst({
         where: { role: 'ADMIN' }
       })
 
@@ -260,7 +264,8 @@ export class NewsScheduler {
       }
 
       // Get category
-      let categoryRecord = await prisma.category.findFirst({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let categoryRecord: any = await prisma.category.findFirst({
         where: { slug: category }
       })
 

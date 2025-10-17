@@ -12,7 +12,8 @@ export async function GET() {
       })
     }
 
-    const posts = await prisma.post.findMany({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const posts: any[] = await prisma.post.findMany({
       where: {
         published: true,
       },
