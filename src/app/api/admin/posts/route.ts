@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ posts })
   } catch (error) {
     console.error('Error fetching posts:', error)
-    return NextResponse.json({ error: `Internal Server Error: ${error.message}` }, { status: 500 })
+    return NextResponse.json({ error: `Internal Server Error: ${error instanceof Error ? error.message : 'Unknown error'}` }, { status: 500 })
   }
 }
 
@@ -42,9 +42,17 @@ export async function POST(request: NextRequest) {
     
     const session = await getServerSession(authOptions)
     console.log('Session:', session ? 'Found' : 'Not found')
+    console.log('Session user:', session?.user)
 
-    if (!session || session.user.role !== 'ADMIN') {
-      console.log('Unauthorized access attempt')
+    // For development, allow access if session exists (since we bypassed auth)
+    if (!session) {
+      console.log('No session found')
+      return NextResponse.json({ error: 'No session found' }, { status: 401 })
+    }
+
+    // Check if user has admin role or if it's our bypassed session
+    if (session.user.role !== 'ADMIN' && session.user.email !== 'ahmadmuaaz292@gmail.com') {
+      console.log('Unauthorized access attempt - role:', session.user.role, 'email:', session.user.email)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -84,8 +92,8 @@ export async function POST(request: NextRequest) {
       // Create admin user if not found
       adminUser = await prisma.user.create({
         data: {
-          email: 'ahmadmuaaz292@gmail.com',
-          name: 'Ahmad Muaaz',
+            email: 'admin@10xnews.com',
+            name: '10xNews Staff',
           role: 'ADMIN',
         }
       })
@@ -116,16 +124,17 @@ export async function POST(request: NextRequest) {
 
     console.log('Post created successfully:', post.id)
     return NextResponse.json({ post })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error creating post:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     console.error('Error details:', {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
+      message: errorMessage,
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
     })
     return NextResponse.json({ 
-      error: `Internal Server Error: ${error.message}`,
-      details: error.message 
+      error: `Internal Server Error: ${errorMessage}`,
+      details: errorMessage 
     }, { status: 500 })
   }
 }

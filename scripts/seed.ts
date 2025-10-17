@@ -58,6 +58,112 @@ async function main() {
 
   console.log('✅ Categories created:', categories.length)
 
+  // Create additional categories for 10xNews
+  const additionalCategories = await Promise.all([
+    prisma.category.upsert({
+      where: { slug: 'tech-telecom' },
+      update: {},
+      create: {
+        name: 'Tech & Telecom',
+        slug: 'tech-telecom',
+        description: 'Latest in technology and telecommunications',
+        color: 'bg-blue-500',
+      },
+    }),
+    prisma.category.upsert({
+      where: { slug: 'business' },
+      update: {},
+      create: {
+        name: 'Business',
+        slug: 'business',
+        description: 'Business news and startup insights',
+        color: 'bg-green-500',
+      },
+    }),
+    prisma.category.upsert({
+      where: { slug: 'carbase' },
+      update: {},
+      create: {
+        name: 'CarBase',
+        slug: 'carbase',
+        description: 'Automotive technology and news',
+        color: 'bg-orange-500',
+      },
+    }),
+    prisma.category.upsert({
+      where: { slug: 'prosports' },
+      update: {},
+      create: {
+        name: 'ProSports',
+        slug: 'prosports',
+        description: 'Professional sports and technology',
+        color: 'bg-red-500',
+      },
+    }),
+    prisma.category.upsert({
+      where: { slug: 'education' },
+      update: {},
+      create: {
+        name: 'Education',
+        slug: 'education',
+        description: 'Educational technology and trends',
+        color: 'bg-purple-500',
+      },
+    }),
+    prisma.category.upsert({
+      where: { slug: 'health' },
+      update: {},
+      create: {
+        name: 'Health',
+        slug: 'health',
+        description: 'Health technology and medical innovations',
+        color: 'bg-cyan-500',
+      },
+    }),
+    prisma.category.upsert({
+      where: { slug: 'pakistan' },
+      update: {},
+      create: {
+        name: 'Pakistan',
+        slug: 'pakistan',
+        description: 'Pakistan tech ecosystem and news',
+        color: 'bg-lime-500',
+      },
+    }),
+    prisma.category.upsert({
+      where: { slug: 'ai-ml' },
+      update: {},
+      create: {
+        name: 'AI & Machine Learning',
+        slug: 'ai-ml',
+        description: 'Artificial intelligence and machine learning',
+        color: 'bg-pink-500',
+      },
+    }),
+    prisma.category.upsert({
+      where: { slug: 'startups' },
+      update: {},
+      create: {
+        name: 'Startups',
+        slug: 'startups',
+        description: 'Startup news and entrepreneurship',
+        color: 'bg-orange-600',
+      },
+    }),
+    prisma.category.upsert({
+      where: { slug: 'crypto' },
+      update: {},
+      create: {
+        name: 'Cryptocurrency',
+        slug: 'crypto',
+        description: 'Cryptocurrency and blockchain technology',
+        color: 'bg-yellow-500',
+      },
+    }),
+  ])
+
+  console.log('✅ Additional categories created:', additionalCategories.length)
+
   // Create sample posts
   const posts = [
     {

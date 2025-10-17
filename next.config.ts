@@ -21,6 +21,30 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'live-production.wcms.abc-cdn.net.au',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'smartcdn.gprod.postmedia.digital',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.theconversation.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'media.zenfs.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };

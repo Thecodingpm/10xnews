@@ -81,6 +81,8 @@ model Post {
   seoTitle    String?
   seoDescription String?
   keywords    String[]
+  sourceUrl   String?  // Original news source URL
+  sourceName  String?  // Original news source name
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   publishedAt DateTime?

@@ -1,18 +1,21 @@
 import { prisma } from '@/lib/prisma'
-import PostCard from '@/components/blog/PostCard'
-import { HeaderAd, SidebarAd } from '@/components/AdSlot'
-import { SearchIcon } from '@heroicons/react/24/outline'
+// import PostCard from '@/components/blog/PostCard'
+// import { HeaderAd, SidebarAd } from '@/components/AdSlot'
+import { AdSpace } from '@/components/AdDetection'
+import { MagnifyingGlassIcon as SearchIcon } from '@heroicons/react/24/outline'
+import Link from 'next/link'
+import type { Metadata } from 'next'
 
 interface BlogPageProps {
-  searchParams: {
+  searchParams: Promise<{
     search?: string
     category?: string
     tag?: string
     page?: string
-  }
+  }>
 }
 
-async function getPosts(searchParams: BlogPageProps['searchParams']) {
+async function getPosts(searchParams: Awaited<BlogPageProps['searchParams']>) {
   const page = parseInt(searchParams.page || '1')
   const limit = 9
   const skip = (page - 1) * limit
@@ -49,7 +52,6 @@ async function getPosts(searchParams: BlogPageProps['searchParams']) {
           author: {
             select: {
               name: true,
-              image: true,
             },
           },
           category: {
@@ -60,11 +62,12 @@ async function getPosts(searchParams: BlogPageProps['searchParams']) {
             },
           },
         },
-        orderBy: {
-          publishedAt: 'desc',
-        },
-        skip,
+        orderBy: [
+          { publishedAt: 'desc' },
+          { createdAt: 'desc' }
+        ],
         take: limit,
+        skip,
       }),
       prisma.post.count({ where }),
     ])
@@ -75,22 +78,11 @@ async function getPosts(searchParams: BlogPageProps['searchParams']) {
         currentPage: page,
         totalPages: Math.ceil(totalCount / limit),
         totalCount,
-        hasNextPage: page < Math.ceil(totalCount / limit),
-        hasPrevPage: page > 1,
       },
     }
   } catch (error) {
     console.error('Error fetching posts:', error)
-    return {
-      posts: [],
-      pagination: {
-        currentPage: 1,
-        totalPages: 0,
-        totalCount: 0,
-        hasNextPage: false,
-        hasPrevPage: false,
-      },
-    }
+    return { posts: [], pagination: { currentPage: 1, totalPages: 1, totalCount: 0 } }
   }
 }
 
@@ -99,20 +91,13 @@ async function getCategories() {
     const categories = await prisma.category.findMany({
       include: {
         _count: {
-          select: {
-            posts: {
-              where: {
-                published: true,
-              },
-            },
-          },
+          select: { posts: { where: { published: true } } },
         },
       },
       orderBy: {
         name: 'asc',
       },
     })
-
     return categories
   } catch (error) {
     console.error('Error fetching categories:', error)
@@ -120,8 +105,8 @@ async function getCategories() {
   }
 }
 
-export const metadata = {
-  title: 'Blog',
+export const metadata: Metadata = {
+  title: 'Tech News',
   description: 'Browse all our articles, tutorials, and insights.',
 }
 
@@ -133,172 +118,143 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   ])
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <div className="bg-gray-50 dark:bg-gray-900 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-              Blog
-            </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Discover insightful articles, tutorials, and industry insights
-            </p>
-          </div>
+    <div className="min-h-screen bg-white dark:bg-gray-900">
+      {/* Header Ad */}
+      <div className="bg-gray-100 dark:bg-gray-800 py-4">
+        <div className="max-w-4xl mx-auto px-4">
+          <AdSpace size="medium">
+              {/* <HeaderAd /> */}
+          </AdSpace>
         </div>
       </div>
 
-      {/* Header Ad */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <HeaderAd />
-      </div>
-
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            {/* Search and Filters */}
-            <div className="mb-8">
-              <form className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1 relative">
-                  <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    type="text"
-                    name="search"
-                    placeholder="Search articles..."
-                    defaultValue={searchParams.search || ''}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Search
-                </button>
-              </form>
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        {/* Search */}
+        <div className="mb-8">
+          <form className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1 relative">
+              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                name="search"
+                placeholder="Search articles..."
+                defaultValue={resolvedSearchParams.search || ''}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              />
             </div>
+            <button
+              type="submit"
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              Search
+            </button>
+          </form>
+        </div>
 
-            {/* Results */}
-            {posts.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                  {posts.map((post) => (
-                    <PostCard key={post.id} post={post} />
-                  ))}
-                </div>
-
-                {/* Pagination */}
-                {pagination.totalPages > 1 && (
-                  <div className="flex justify-center items-center space-x-4">
-                    {pagination.hasPrevPage && (
-                      <a
-                        href={`/blog?page=${pagination.currentPage - 1}${
-                          searchParams.search ? `&search=${searchParams.search}` : ''
-                        }${searchParams.category ? `&category=${searchParams.category}` : ''}${
-                          searchParams.tag ? `&tag=${searchParams.tag}` : ''
-                        }`}
-                        className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                      >
-                        Previous
-                      </a>
-                    )}
-
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Page {pagination.currentPage} of {pagination.totalPages}
-                    </span>
-
-                    {pagination.hasNextPage && (
-                      <a
-                        href={`/blog?page=${pagination.currentPage + 1}${
-                          searchParams.search ? `&search=${searchParams.search}` : ''
-                        }${searchParams.category ? `&category=${searchParams.category}` : ''}${
-                          searchParams.tag ? `&tag=${searchParams.tag}` : ''
-                        }`}
-                        className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                      >
-                        Next
-                      </a>
-                    )}
+        {/* Articles Feed */}
+        <div className="space-y-6">
+          {posts.length > 0 ? (
+            posts.map((post, index) => (
+              <div key={post.id}>
+                {/* Ad Space - Every 3rd article */}
+                {index > 0 && index % 3 === 0 && (
+                  <div className="my-8">
+                    <AdSpace size="medium" />
                   </div>
                 )}
-              </>
-            ) : (
-              <div className="text-center py-12">
-                <h3 className="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-4">
-                  No articles found
-                </h3>
-                <p className="text-gray-500 dark:text-gray-500">
-                  Try adjusting your search criteria or browse our categories.
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8 space-y-8">
-              {/* Sidebar Ad */}
-              <SidebarAd />
-
-              {/* Categories */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                  Categories
-                </h3>
-                <div className="space-y-2">
-                  {categories.map((category) => (
-                    <a
-                      key={category.id}
-                      href={`/blog?category=${category.slug}`}
-                      className={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        searchParams.category === category.slug
-                          ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                      }`}
-                    >
-                      <div className="flex justify-between items-center">
-                        <span>{category.name}</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {category._count.posts}
-                        </span>
+                
+                {/* Article Card */}
+                <article className="group">
+                  <div className="flex flex-col md:flex-row gap-4">
+                    {/* Image */}
+                    <div className="md:w-1/3">
+                      <div className="aspect-video md:aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                        {post.coverImage ? (
+                          <img
+                            src={post.coverImage}
+                            alt={post.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                            <span className="text-white text-2xl">📰</span>
+                          </div>
+                        )}
                       </div>
-                    </a>
-                  ))}
-                </div>
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="md:w-2/3 flex flex-col justify-between">
+                      <div>
+                        {/* Category */}
+                        <div className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-2">
+                          {post.category?.name || 'TECH'}
+                        </div>
+                        
+                        {/* Title */}
+                        <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                          <Link href={`/blog/${post.slug}`}>
+                            {post.title}
+                          </Link>
+                        </h2>
+                        
+                        {/* Description */}
+                        <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base leading-relaxed">
+                          {post.excerpt || 'Read the full story to discover more about this important development...'}
+                        </p>
+                      </div>
+                      
+                      {/* Meta */}
+                      <div className="flex items-center justify-between mt-4 text-sm text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center space-x-4">
+                          <span className="font-medium">{post.author?.name || '10xNews Staff'}</span>
+                          <span>•</span>
+                          <span>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recently'}</span>
+                          <span>•</span>
+                          <span>{post.readTime || 5} min read</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </article>
               </div>
-
-              {/* Popular Tags */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                  Popular Tags
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    'javascript',
-                    'react',
-                    'nextjs',
-                    'typescript',
-                    'web-development',
-                    'tutorial',
-                    'programming',
-                    'css',
-                    'html',
-                    'nodejs',
-                  ].map((tag) => (
-                    <a
-                      key={tag}
-                      href={`/blog?tag=${tag}`}
-                      className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                    >
-                      #{tag}
-                    </a>
-                  ))}
-                </div>
-              </div>
+            ))
+          ) : (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4">📰</div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                No articles found
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Try adjusting your search or browse all articles.
+              </p>
             </div>
+          )}
+        </div>
+
+        {/* Pagination */}
+        {pagination.totalPages > 1 && (
+          <div className="flex justify-center mt-12 space-x-2">
+            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((pageNumber) => (
+              <Link
+                key={pageNumber}
+                href={`/blog?page=${pageNumber}${resolvedSearchParams.search ? `&search=${resolvedSearchParams.search}` : ''}${resolvedSearchParams.category ? `&category=${resolvedSearchParams.category}` : ''}`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                  pageNumber === pagination.currentPage
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-800'
+                }`}
+              >
+                {pageNumber}
+              </Link>
+            ))}
           </div>
+        )}
+
+        {/* Bottom Ad */}
+        <div className="mt-12">
+          <AdSpace size="medium" />
         </div>
       </div>
     </div>

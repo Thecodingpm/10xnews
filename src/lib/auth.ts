@@ -14,13 +14,24 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
-        // Bypass all authentication for now - just return admin user
-        return {
-          id: 'admin-user-id',
-          email: 'ahmadmuaaz292@gmail.com',
-          name: 'Ahmad Muaaz',
-          role: 'ADMIN',
+        if (!credentials?.email || !credentials?.password) {
+          return null
         }
+
+        // For production, use environment variables for admin credentials
+        const adminEmail = process.env.ADMIN_EMAIL || 'admin@10xnews.com'
+        const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'
+
+        if (credentials.email === adminEmail && credentials.password === adminPassword) {
+          return {
+            id: 'admin-user-id',
+            email: adminEmail,
+            name: '10xNews Staff',
+            role: 'ADMIN',
+          }
+        }
+
+        return null
       }
     })
   ],

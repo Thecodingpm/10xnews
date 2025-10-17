@@ -1,9 +1,13 @@
 import { prisma } from '@/lib/prisma'
-import HeroSection from '@/components/blog/HeroSection'
-import PostCard from '@/components/blog/PostCard'
-import { HeaderAd, SidebarAd } from '@/components/AdSlot'
+// import HeroSection from '@/components/blog/HeroSection'
+// import PostCard from '@/components/blog/PostCard'
+// import { HeaderAd, SidebarAd } from '@/components/AdSlot'
+import { AdSpace } from '@/components/AdDetection'
+import Link from 'next/link'
 
 export default async function Home() {
+  console.log('Fetching posts for home page...')
+  
   const [featuredPosts, latestPosts] = await Promise.all([
     prisma.post.findMany({
       where: { published: true, featured: true },
@@ -20,150 +24,112 @@ export default async function Home() {
         author: { select: { name: true } },
         category: { select: { name: true, color: true } }
       },
-      orderBy: { publishedAt: 'desc' },
+      orderBy: [
+        { publishedAt: 'desc' },
+        { createdAt: 'desc' }
+      ],
       take: 6
     })
   ])
 
+  console.log('Featured posts:', featuredPosts.length)
+  console.log('Latest posts:', latestPosts.length)
+  console.log('Latest posts data:', latestPosts.map(p => ({ id: p.id, title: p.title, published: p.published })))
+
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <HeroSection featuredPosts={featuredPosts} />
-
-      {/* Header Ad */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <HeaderAd />
-      </div>
-
+    <div className="min-h-screen bg-white dark:bg-gray-900">
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            {/* Latest Posts Section */}
-            <section className="mb-12">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-                  Latest Articles
-                </h2>
-                <a
-                  href="/blog"
-                  className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
-                >
-                  View all articles →
-          </a>
-        </div>
-
-              {latestPosts.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {latestPosts.map((post) => (
-                    <PostCard key={post.id} post={post} />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <h3 className="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-4">
-                    No articles yet
-                  </h3>
-                  <p className="text-gray-500 dark:text-gray-500">
-                    Check back soon for new content!
-                  </p>
-                </div>
-              )}
-            </section>
-
-            {/* In-Content Ad */}
-            <div className="my-12">
-              <HeaderAd />
-            </div>
-
-            {/* Categories Section */}
-            <section className="mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-                Browse by Category
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  { name: 'Technology', color: 'bg-blue-500', count: 12 },
-                  { name: 'Programming', color: 'bg-green-500', count: 8 },
-                  { name: 'Web Development', color: 'bg-purple-500', count: 15 },
-                  { name: 'Design', color: 'bg-pink-500', count: 6 },
-                ].map((category) => (
-                  <a
-                    key={category.name}
-                    href={`/categories/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
-                    className="group p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    <div className={`w-12 h-12 ${category.color} rounded-lg mb-4 group-hover:scale-110 transition-transform`} />
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                      {category.name}
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {category.count} articles
-                    </p>
-                  </a>
-                ))}
-              </div>
-            </section>
-          </div>
-
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8 space-y-8">
-              {/* Sidebar Ad */}
-              <SidebarAd />
-
-              {/* Popular Posts */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                  Popular Posts
-                </h3>
-                <div className="space-y-4">
-                  {latestPosts.slice(0, 5).map((post, index) => (
-                    <a
-                      key={post.id}
-                      href={`/blog/${post.slug}`}
-                      className="block group"
-                    >
-                      <div className="flex space-x-3">
-                        <div className="flex-shrink-0 w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-300">
-                          {index + 1}
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        {/* Articles Feed */}
+        <div className="space-y-6">
+          {latestPosts.length > 0 ? (
+            latestPosts.map((post, index) => (
+              <div key={post.id}>
+                {/* Ad Space - Every 3rd article */}
+                {index > 0 && index % 3 === 0 && (
+                  <div className="my-8">
+                    <AdSpace size="medium" />
+                  </div>
+                )}
+                
+                {/* Article Card */}
+                <article className="group">
+                  <div className="flex flex-col md:flex-row gap-4">
+                    {/* Image */}
+                    <div className="md:w-1/3">
+                      <div className="aspect-video md:aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                        {post.coverImage ? (
+                          <img
+                            src={post.coverImage}
+                            alt={post.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                            <span className="text-white text-2xl">📰</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="md:w-2/3 flex flex-col justify-between">
+                      <div>
+                        {/* Category */}
+                        <div className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-2">
+                          {post.category?.name || 'TECH'}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-2">
+                        
+                        {/* Title */}
+                        <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                          <Link href={`/blog/${post.slug}`}>
                             {post.title}
-                          </h4>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            {post.views} views
-                          </p>
+                          </Link>
+                        </h2>
+                        
+                        {/* Description */}
+                        <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base leading-relaxed">
+                          {post.excerpt || 'Read the full story to discover more about this important development...'}
+                        </p>
+                      </div>
+                      
+                      {/* Meta */}
+                      <div className="flex items-center justify-between mt-4 text-sm text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center space-x-4">
+                          <span className="font-medium">{post.author?.name || '10xNews Staff'}</span>
+                          <span>•</span>
+                          <span>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recently'}</span>
+                          <span>•</span>
+                          <span>{post.readTime || 5} min read</span>
                         </div>
                       </div>
-                    </a>
-                  ))}
-                </div>
+                    </div>
+                  </div>
+                </article>
               </div>
-
-              {/* Newsletter Signup */}
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
-                <h3 className="text-lg font-semibold mb-2">
-                  Stay Updated
-                </h3>
-                <p className="text-blue-100 text-sm mb-4">
-                  Get the latest articles delivered to your inbox.
-                </p>
-                <div className="space-y-3">
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    className="w-full px-3 py-2 text-gray-900 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-white"
-                  />
-                  <button className="w-full bg-white text-blue-600 py-2 rounded-md text-sm font-medium hover:bg-gray-100 transition-colors">
-                    Subscribe
-                  </button>
-                </div>
-              </div>
+            ))
+          ) : (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4">📰</div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                No articles yet
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Check back soon for the latest tech news.
+              </p>
+              <a
+                href="/admin/posts/new"
+                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                Create First Article
+              </a>
             </div>
-          </div>
+          )}
+        </div>
+
+        {/* Bottom Ad */}
+        <div className="mt-12">
+          <AdSpace size="medium" />
         </div>
       </div>
     </div>

@@ -5,8 +5,9 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params
   try {
     const session = await getServerSession(authOptions)
 
@@ -15,7 +16,7 @@ export async function GET(
     }
 
     const post = await prisma.post.findUnique({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       include: {
         author: {
           select: {
@@ -43,8 +44,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params
   try {
     const session = await getServerSession(authOptions)
 
@@ -70,7 +72,7 @@ export async function PUT(
     } = body
 
     const post = await prisma.post.update({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       data: {
         title,
         slug,
@@ -100,8 +102,9 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params
   try {
     const session = await getServerSession(authOptions)
 
@@ -110,7 +113,7 @@ export async function DELETE(
     }
 
     await prisma.post.delete({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
     })
 
     return NextResponse.json({ success: true })

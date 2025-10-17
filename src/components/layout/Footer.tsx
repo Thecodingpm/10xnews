@@ -5,10 +5,12 @@ export default function Footer() {
   const currentYear = new Date().getFullYear()
 
   const footerLinks = {
-    blog: [
-      { name: 'Latest Posts', href: '/blog' },
-      { name: 'Categories', href: '/categories' },
-      { name: 'Search', href: '/search' },
+    news: [
+      { name: 'Tech & Telecom', href: '/categories/tech-telecom' },
+      { name: 'Business', href: '/categories/business' },
+      { name: 'Education', href: '/categories/education' },
+      { name: 'Health', href: '/categories/health' },
+      { name: 'Pakistan', href: '/categories/pakistan' },
     ],
     company: [
       { name: 'About', href: '/about' },
@@ -36,9 +38,14 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
-            <h3 className="text-2xl font-bold mb-4">BlogSite</h3>
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">10x</span>
+              </div>
+              <h3 className="text-2xl font-bold">10xNews</h3>
+            </div>
             <p className="text-gray-400 mb-4">
-              Your go-to destination for insightful articles, tutorials, and industry insights.
+              Your premier source for breaking tech news, startup insights, and industry analysis.
             </p>
             <div className="flex space-x-4">
               {footerLinks.social.map((link) => (
@@ -53,11 +60,11 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Blog Links */}
+          {/* News Categories */}
           <div>
-            <h4 className="text-lg font-semibold mb-4">Blog</h4>
+            <h4 className="text-lg font-semibold mb-4">News Categories</h4>
             <ul className="space-y-2">
-              {footerLinks.blog.map((link) => (
+              {footerLinks.news.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
@@ -110,7 +117,7 @@ export default function Footer() {
         <div className="border-t border-gray-800 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © {currentYear} BlogSite. All rights reserved.
+              © {currentYear} 10xNews. All rights reserved.
             </p>
             <p className="text-gray-400 text-sm mt-2 md:mt-0">
               Built with Next.js and Tailwind CSS

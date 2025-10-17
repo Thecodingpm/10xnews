@@ -11,7 +11,7 @@ export default function NewPostPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [categories, setCategories] = useState([])
+  const [categories, setCategories] = useState<Array<{id: string, name: string}>>([])
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -47,6 +47,24 @@ export default function NewPostPage() {
     setLoading(true)
 
     try {
+      // First test with simple endpoint
+      console.log('Testing with simple endpoint...')
+      const testResponse = await fetch('/api/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ test: 'data' }),
+      })
+      
+      if (testResponse.ok) {
+        const testData = await testResponse.json()
+        console.log('Test API response:', testData)
+      } else {
+        console.error('Test API failed:', testResponse.status)
+      }
+
+      console.log('Now trying admin posts API...')
       const response = await fetch('/api/admin/posts', {
         method: 'POST',
         headers: {
@@ -59,18 +77,30 @@ export default function NewPostPage() {
         }),
       })
 
+      console.log('Response status:', response.status)
+      console.log('Response ok:', response.ok)
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+      
       if (response.ok) {
         router.push('/admin/dashboard')
       } else {
-        const errorData = await response.json()
-        console.error('Error creating post:', errorData)
-        console.error('Response status:', response.status)
-        console.error('Response headers:', Object.fromEntries(response.headers.entries()))
-        setError(errorData.error || errorData.details || `Failed to create post (Status: ${response.status})`)
+        // Try to get response as text first to see what we're actually getting
+        const responseText = await response.text()
+        console.error('Raw response text:', responseText)
+        
+        try {
+          const errorData = JSON.parse(responseText)
+          console.error('Parsed error data:', errorData)
+          setError(errorData.error || errorData.details || `Failed to create post (Status: ${response.status})`)
+        } catch (parseError) {
+          console.error('Failed to parse response as JSON:', parseError)
+          console.error('Response was not JSON, it was:', responseText.substring(0, 200))
+          setError(`Server returned non-JSON response (Status: ${response.status}): ${responseText.substring(0, 100)}...`)
+        }
       }
     } catch (error) {
       console.error('Error creating post:', error)
-      setError(`Network error: ${error.message}`)
+      setError(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setLoading(false)
     }
@@ -80,7 +110,7 @@ export default function NewPostPage() {
     setFormData(prev => ({
       ...prev,
       title,
-      slug: title.toLowerCase().replace(/[^a-z0-9 -]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim('-'),
+      slug: title.toLowerCase().replace(/[^a-z0-9 -]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, ''),
       seoTitle: title,
     }))
   }
@@ -197,7 +227,7 @@ export default function NewPostPage() {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 >
                   <option value="">Select a category</option>
-                  {categories.map((category: any) => (
+                        {categories.map((category: {id: string, name: string}) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
                     </option>

@@ -32,8 +32,8 @@ export default function AdminLogin() {
 
     try {
       const result = await signIn('credentials', {
-        email: 'any@email.com', // Dummy email since auth is bypassed
-        password: 'anypassword', // Dummy password since auth is bypassed
+        email,
+        password,
         redirect: false,
       })
 
@@ -62,31 +62,64 @@ export default function AdminLogin() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
+          <div className="flex justify-center mb-4">
+            <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+              <span className="text-white font-bold text-xl">10x</span>
+            </div>
+          </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            Admin Login
+            10xNews Admin
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            Sign in to access the admin dashboard
+            Access the news management dashboard
           </p>
         </div>
-        <div className="mt-8 space-y-6">
-          <div className="text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              No authentication required - click below to access admin dashboard
-            </p>
-          </div>
-
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="text-red-600 text-sm text-center">{error}</div>
+            <div className="text-red-600 text-sm text-center bg-red-50 dark:bg-red-900/20 p-3 rounded-md">
+              {error}
+            </div>
           )}
 
           <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Admin Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              placeholder="admin@10xnews.com"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Admin Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              placeholder="Enter admin password"
+            />
+          </div>
+
+          <div>
             <button
-              onClick={handleSubmit}
+              type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-3 px-6 border border-transparent text-sm font-semibold rounded-lg text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
             >
-              {isLoading ? 'Accessing...' : 'Access Admin Dashboard'}
+              {isLoading ? 'Signing in...' : 'Sign in to Admin'}
             </button>
           </div>
 
@@ -98,7 +131,7 @@ export default function AdminLogin() {
               ← Back to website
             </Link>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   )

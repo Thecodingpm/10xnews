@@ -23,9 +23,9 @@ export default function AdSlot({
     if (testMode) return
 
     try {
-      // @ts-ignore
+      // @ts-expect-error - Google AdSense global
       if (typeof window !== 'undefined' && window.adsbygoogle) {
-        // @ts-ignore
+        // @ts-expect-error - Google AdSense global
         (window.adsbygoogle = window.adsbygoogle || []).push({})
       }
     } catch (error) {

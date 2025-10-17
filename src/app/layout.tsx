@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Layout from "@/components/layout/Layout";
 import SessionProvider from "@/components/providers/SessionProvider";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,14 +17,14 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "BlogSite - Your Source for Quality Content",
-    template: "%s | BlogSite"
+    default: "10xNews - Breaking Tech News & Insights",
+    template: "%s | 10xNews"
   },
-  description: "Discover insightful articles, tutorials, and industry insights on our modern blogging platform.",
-  keywords: ["blog", "articles", "tutorials", "technology", "programming", "web development"],
-  authors: [{ name: "BlogSite Team" }],
-  creator: "BlogSite",
-  publisher: "BlogSite",
+  description: "Stay ahead with 10xNews - Your premier source for breaking tech news, startup insights, and industry analysis that matters.",
+  keywords: ["tech news", "startup news", "technology", "innovation", "breaking news", "tech insights", "industry analysis"],
+  authors: [{ name: "10xNews Team" }],
+  creator: "10xNews",
+  publisher: "10xNews",
   formatDetection: {
     email: false,
     address: false,
@@ -37,15 +38,15 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: '/',
-    title: 'BlogSite - Your Source for Quality Content',
-    description: 'Discover insightful articles, tutorials, and industry insights on our modern blogging platform.',
-    siteName: 'BlogSite',
+    title: '10xNews - Breaking Tech News & Insights',
+    description: 'Stay ahead with 10xNews - Your premier source for breaking tech news, startup insights, and industry analysis that matters.',
+    siteName: '10xNews',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'BlogSite - Your Source for Quality Content',
-    description: 'Discover insightful articles, tutorials, and industry insights on our modern blogging platform.',
-    creator: '@blogsite',
+    title: '10xNews - Breaking Tech News & Insights',
+    description: 'Stay ahead with 10xNews - Your premier source for breaking tech news, startup insights, and industry analysis that matters.',
+    creator: '@10xnews',
   },
   robots: {
     index: true,
@@ -70,11 +71,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SessionProvider>
-          <Layout>
-            {children}
-          </Layout>
-        </SessionProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SessionProvider>
+            <Layout>
+              {children}
+            </Layout>
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -1,36 +1,57 @@
-import { createUser, createCategory, createPost } from '../src/lib/firebase-data'
+import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
+
+const prisma = new PrismaClient()
 
 async function seedFirebase() {
   console.log('🌱 Starting Firebase seed...')
 
   try {
     // Create admin user
-    const adminUser = await createUser({
-      email: 'admin@example.com',
-      name: 'Admin User',
-      role: 'ADMIN',
+    const hashedPassword = await bcrypt.hash('admin123', 12)
+    const adminUser = await prisma.user.upsert({
+      where: { email: 'admin@example.com' },
+      update: {},
+      create: {
+        email: 'admin@example.com',
+        name: 'Admin User',
+        password: hashedPassword,
+        role: 'ADMIN',
+      },
     })
     console.log('✅ Admin user created:', adminUser.email)
 
     // Create categories
     const categories = await Promise.all([
-      createCategory({
-        name: 'Technology',
-        slug: 'technology',
-        description: 'Latest technology news and insights',
-        color: 'bg-blue-500',
+      prisma.category.upsert({
+        where: { slug: 'technology' },
+        update: {},
+        create: {
+          name: 'Technology',
+          slug: 'technology',
+          description: 'Latest technology news and insights',
+          color: 'bg-blue-500',
+        },
       }),
-      createCategory({
-        name: 'Programming',
-        slug: 'programming',
-        description: 'Programming tutorials and guides',
-        color: 'bg-green-500',
+      prisma.category.upsert({
+        where: { slug: 'programming' },
+        update: {},
+        create: {
+          name: 'Programming',
+          slug: 'programming',
+          description: 'Programming tutorials and guides',
+          color: 'bg-green-500',
+        },
       }),
-      createCategory({
-        name: 'Web Development',
-        slug: 'web-development',
-        description: 'Web development tips and tricks',
-        color: 'bg-purple-500',
+      prisma.category.upsert({
+        where: { slug: 'web-development' },
+        update: {},
+        create: {
+          name: 'Web Development',
+          slug: 'web-development',
+          description: 'Web development tips and tricks',
+          color: 'bg-purple-500',
+        },
       }),
     ])
 
@@ -138,7 +159,27 @@ async function seedFirebase() {
     ]
 
     for (const postData of posts) {
-      const post = await createPost(postData)
+      const post = await prisma.post.create({
+        data: {
+          title: postData.title,
+          slug: postData.slug,
+          content: postData.content,
+          excerpt: postData.excerpt,
+          coverImage: postData.coverImage,
+          published: postData.published,
+          featured: postData.featured,
+          sponsored: postData.sponsored,
+          authorId: postData.authorId,
+          categoryId: postData.categoryId,
+          tags: postData.tags,
+          seoTitle: postData.seoTitle,
+          seoDescription: postData.seoDescription,
+          keywords: postData.keywords,
+          readTime: postData.readTime,
+          views: postData.views,
+          publishedAt: postData.publishedAt,
+        }
+      })
       console.log('✅ Post created:', post.title)
     }
 
@@ -150,6 +191,8 @@ async function seedFirebase() {
   } catch (error) {
     console.error('❌ Error seeding Firebase:', error)
     process.exit(1)
+  } finally {
+    await prisma.$disconnect()
   }
 }
 

@@ -74,7 +74,7 @@ const categoriesCollection = collection(db, 'categories')
 const usersCollection = collection(db, 'users')
 
 // Posts Functions
-export async function getPosts(whereClause?: any, orderByClause?: any, limitCount?: number) {
+export async function getPosts(whereClause?: unknown, orderByClause?: unknown, limitCount?: number) {
   try {
     // For now, let's use a simple query without complex where clauses
     let q = query(postsCollection, orderBy('publishedAt', 'desc'))

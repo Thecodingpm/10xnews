@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { PlusIcon, PencilIcon, TrashIcon, EyeIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, PencilIcon, TrashIcon, EyeIcon, CloudArrowDownIcon } from '@heroicons/react/24/outline'
 
 interface Post {
   id: string
@@ -91,27 +91,34 @@ export default function AdminDashboard() {
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Admin Dashboard
+                10xNews Admin
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                Manage your blog content
+                Manage breaking tech news and content
               </p>
             </div>
-            <div className="flex space-x-4">
-              <Link
-                href="/admin/posts/new"
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <PlusIcon className="h-5 w-5 mr-2" />
-                New Post
-              </Link>
-              <Link
-                href="/"
-                className="inline-flex items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-              >
-                View Site
-              </Link>
-            </div>
+                    <div className="flex space-x-4">
+                      <Link
+                        href="/admin/posts/new"
+                        className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl"
+                      >
+                        <PlusIcon className="h-5 w-5 mr-2" />
+                        Create News Story
+                      </Link>
+                      <Link
+                        href="/admin/news"
+                        className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl"
+                      >
+                        <CloudArrowDownIcon className="h-5 w-5 mr-2" />
+                        Auto News
+                      </Link>
+                      <Link
+                        href="/"
+                        className="inline-flex items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                      >
+                        View Site
+                      </Link>
+                    </div>
           </div>
         </div>
       </div>
