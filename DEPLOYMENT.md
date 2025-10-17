@@ -1,83 +1,90 @@
-# 10xNews Deployment Guide
+# Vercel Deployment Guide
 
-## Admin Access for Production
+## Required Environment Variables
 
-### Current Setup
-- **Development**: No authentication required (bypassed for easy testing)
-- **Production**: Password-protected admin access
+Set these in your Vercel dashboard under Settings > Environment Variables:
 
-### Admin Credentials
-The admin system uses environment variables for credentials:
-
-```bash
-ADMIN_EMAIL="admin@10xnews.com"
-ADMIN_PASSWORD="your-secure-password-here"
+### 1. NextAuth Configuration
+```
+NEXTAUTH_URL=https://your-app-name.vercel.app
+NEXTAUTH_SECRET=your-random-secret-key-here
 ```
 
-### How to Access Admin Panel
-
-1. **Go to**: `https://yourdomain.com/admin/login`
-2. **Enter**:
-   - Email: `admin@10xnews.com` (or your custom ADMIN_EMAIL)
-   - Password: Your custom ADMIN_PASSWORD
-
-### Environment Variables for Production
-
-Create a `.env.local` file with these variables:
-
-```bash
-# Database
-DATABASE_URL="your-mongodb-connection-string"
-
-# NextAuth
-NEXTAUTH_SECRET="your-super-secret-key-here"
-NEXTAUTH_URL="https://yourdomain.com"
-
-# News API
-NEWS_API_KEY="your-news-api-key"
-
-# Admin Credentials (CHANGE THESE!)
-ADMIN_EMAIL="admin@10xnews.com"
-ADMIN_PASSWORD="your-secure-admin-password-here"
+### 2. Firebase Configuration (Public)
+```
+NEXT_PUBLIC_FIREBASE_API_KEY=your-firebase-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
 ```
 
-### Deployment Platforms
+### 3. Firebase Admin (Server-side)
+```
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_CLIENT_EMAIL=your-service-account-email
+FIREBASE_PRIVATE_KEY=your-private-key
+```
 
-#### Vercel (Recommended)
-1. Connect your GitHub repository to Vercel
-2. Add environment variables in Vercel dashboard
-3. Deploy automatically on push
+### 4. Admin Credentials
+```
+ADMIN_EMAIL=admin@10xnews.com
+ADMIN_PASSWORD=your-secure-password
+```
 
-#### Netlify
-1. Connect your GitHub repository to Netlify
-2. Add environment variables in Netlify dashboard
-3. Deploy automatically on push
+### 5. Site Configuration
+```
+NEXT_PUBLIC_SITE_URL=https://your-app-name.vercel.app
+NEXT_PUBLIC_SITE_NAME=10xNews
+NEXT_PUBLIC_SITE_DESCRIPTION=Latest tech news and insights
+```
 
-#### Other Platforms
-- Railway
-- Render
-- DigitalOcean App Platform
+## How to Get Firebase Credentials
 
-### Security Notes
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Select your project
+3. Go to Project Settings > General
+4. Scroll down to "Your apps" section
+5. Click on the web app icon (</>) to get the config
+6. Copy the values to your Vercel environment variables
 
-1. **Change default credentials** before deploying
-2. **Use strong passwords** for admin access
-3. **Keep environment variables secret**
-4. **Use HTTPS** in production
-5. **Regularly update** your admin password
+## How to Get Firebase Admin Credentials
 
-### Admin Features Available
+1. Go to Firebase Console > Project Settings > Service Accounts
+2. Click "Generate new private key"
+3. Download the JSON file
+4. Extract the values:
+   - `project_id` → `FIREBASE_PROJECT_ID`
+   - `client_email` → `FIREBASE_CLIENT_EMAIL`
+   - `private_key` → `FIREBASE_PRIVATE_KEY` (include the quotes)
 
-- ✅ Create new articles manually
-- ✅ Auto-fetch news from NewsAPI (every 6 hours)
-- ✅ Manage existing articles
-- ✅ View analytics and stats
-- ✅ Access at: `/admin/dashboard`
+## Generate NEXTAUTH_SECRET
 
-### Troubleshooting
+Run this command to generate a secure secret:
+```bash
+openssl rand -base64 32
+```
 
-If you can't access admin:
-1. Check environment variables are set correctly
-2. Verify ADMIN_EMAIL and ADMIN_PASSWORD match
-3. Check server logs for authentication errors
-4. Ensure NEXTAUTH_SECRET is set
+## After Setting Environment Variables
+
+1. Redeploy your Vercel app
+2. Create Firebase indexes (see links in console output)
+3. Run the seed script to add sample data:
+   ```bash
+   npm run seed-firebase
+   ```
+
+## Admin Access
+
+- URL: `https://your-app-name.vercel.app/admin/login`
+- Email: `admin@10xnews.com` (or your custom ADMIN_EMAIL)
+- Password: Your ADMIN_PASSWORD
+
+## Troubleshooting
+
+If you still get server errors:
+1. Check Vercel function logs in the dashboard
+2. Ensure all environment variables are set correctly
+3. Make sure Firebase project is properly configured
+4. Verify the NEXTAUTH_URL matches your Vercel domain exactly

@@ -7,6 +7,7 @@ import bcrypt from 'bcryptjs'
 export const authOptions: NextAuthOptions = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   adapter: prisma && process.env.DATABASE_URL ? PrismaAdapter(prisma as any) : undefined,
+  secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-development-only',
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -15,24 +16,34 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            console.log('Missing credentials')
+            return null
+          }
+
+          // For production, use environment variables for admin credentials
+          const adminEmail = process.env.ADMIN_EMAIL || 'admin@10xnews.com'
+          const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'
+
+          console.log('Attempting login for:', credentials.email)
+
+          if (credentials.email === adminEmail && credentials.password === adminPassword) {
+            console.log('Admin login successful')
+            return {
+              id: 'admin-user-id',
+              email: adminEmail,
+              name: '10xNews Staff',
+              role: 'ADMIN',
+            }
+          }
+
+          console.log('Invalid credentials')
+          return null
+        } catch (error) {
+          console.error('Auth error:', error)
           return null
         }
-
-        // For production, use environment variables for admin credentials
-        const adminEmail = process.env.ADMIN_EMAIL || 'admin@10xnews.com'
-        const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'
-
-        if (credentials.email === adminEmail && credentials.password === adminPassword) {
-          return {
-            id: 'admin-user-id',
-            email: adminEmail,
-            name: '10xNews Staff',
-            role: 'ADMIN',
-          }
-        }
-
-        return null
       }
     })
   ],
