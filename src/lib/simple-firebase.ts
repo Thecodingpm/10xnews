@@ -70,7 +70,7 @@ export async function getAllPosts(): Promise<SimplePost[]> {
         authorId: postData.authorId || '',
         author: { name: 'Unknown', image: null },
         categoryId: postData.categoryId,
-        category: null,
+        category: undefined,
         tags: postData.tags || [],
         seoTitle: postData.seoTitle,
         seoDescription: postData.seoDescription,

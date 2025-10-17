@@ -82,7 +82,7 @@ export default async function Home() {
 
   console.log('Featured posts:', featuredPosts.length)
   console.log('Latest posts:', latestPosts.length)
-  console.log('Latest posts data:', latestPosts.map(p => ({ id: p.id, title: p.title, published: p.published, publishedAt: p.publishedAt })))
+  console.log('Latest posts data:', latestPosts.map(p => ({ id: p.id, title: p.title, publishedAt: p.publishedAt })))
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">

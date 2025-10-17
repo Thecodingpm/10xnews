@@ -1,10 +1,9 @@
-import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { prisma } from './prisma'
 // import bcrypt from 'bcryptjs'
 
-export const authOptions: NextAuthOptions = {
+export const authOptions = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   adapter: prisma && process.env.DATABASE_URL ? PrismaAdapter(prisma as any) : undefined,
   secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-development-only',
@@ -48,23 +47,26 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   session: {
-    strategy: 'jwt'
+    strategy: 'jwt' as const
   },
   callbacks: {
-    async jwt({ token, user }) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async jwt({ token, user }: { token: any; user: any }) {
       if (user) {
         token.role = user.role
       }
       return token
     },
-    async session({ session, token }) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async session({ session, token }: { session: any; token: any }) {
       if (token) {
         session.user.id = token.sub!
         session.user.role = token.role as string
       }
       return session
     },
-    async redirect({ url, baseUrl }) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async redirect({ url, baseUrl }: { url: any; baseUrl: any }) {
       // If the URL is a relative URL, make it absolute
       if (url.startsWith('/')) {
         return `${baseUrl}${url}`

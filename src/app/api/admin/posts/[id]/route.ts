@@ -19,7 +19,7 @@ export async function GET(
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session || !(session as any).user || ((session as any).user as SessionUser).role !== 'ADMIN') {
+    if (!session || !(session as { user?: SessionUser }).user || (session as { user: SessionUser }).user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -44,7 +44,7 @@ export async function PUT(
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session || !(session as any).user || ((session as any).user as SessionUser).role !== 'ADMIN') {
+    if (!session || !(session as { user?: SessionUser }).user || (session as { user: SessionUser }).user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -100,7 +100,7 @@ export async function DELETE(
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session || !(session as any).user || ((session as any).user as SessionUser).role !== 'ADMIN') {
+    if (!session || !(session as { user?: SessionUser }).user || (session as { user: SessionUser }).user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

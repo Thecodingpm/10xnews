@@ -6,9 +6,9 @@ export async function GET() {
     console.log('Debug API: Fetching all posts...')
     const posts = await getPosts()
     
-    console.log('Debug API: Found', posts.length, 'posts')
+    console.log('Debug API: Found', posts?.length || 0, 'posts')
     
-    const debugInfo = posts.map(post => ({
+    const debugInfo = (posts || []).map(post => ({
       id: post.id,
       title: post.title,
       published: post.published,
@@ -22,10 +22,10 @@ export async function GET() {
     }))
     
     return NextResponse.json({ 
-      totalPosts: posts.length,
+      totalPosts: posts?.length || 0,
       posts: debugInfo,
-      publishedPosts: posts.filter(p => p.published).length,
-      unpublishedPosts: posts.filter(p => !p.published).length
+      publishedPosts: (posts || []).filter(p => p.published).length,
+      unpublishedPosts: (posts || []).filter(p => !p.published).length
     })
   } catch (error) {
     console.error('Debug API Error:', error)

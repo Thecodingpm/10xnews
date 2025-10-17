@@ -23,7 +23,7 @@ async function getPosts(searchParams: Awaited<BlogPageProps['searchParams']>) {
     const allPosts = await getFirebasePosts()
     
     // Filter posts based on search parameters
-    let filteredPosts = allPosts.filter(post => post.published)
+    let filteredPosts = (allPosts || []).filter(post => post.published)
     
     // Apply search filter
     if (searchParams.search) {

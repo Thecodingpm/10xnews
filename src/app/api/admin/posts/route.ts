@@ -1,13 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
+import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { createPost, getPosts } from '@/lib/firebase-data'
+
+interface SessionUser {
+  id: string
+  name?: string | null
+  email?: string | null
+  image?: string | null
+  role: string
+}
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!session || !(session as { user?: SessionUser }).user || (session as { user: SessionUser }).user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -25,7 +33,7 @@ export async function POST(request: NextRequest) {
     
     const session = await getServerSession(authOptions)
     console.log('Session:', session ? 'Found' : 'Not found')
-    console.log('Session user:', session?.user)
+    console.log('Session user:', (session as { user?: SessionUser })?.user)
 
     // For development, allow access if session exists (since we bypassed auth)
     if (!session) {
@@ -34,8 +42,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user has admin role or if it's our bypassed session
-    if (session.user.role !== 'ADMIN' && session.user.email !== 'ahmadmuaaz292@gmail.com') {
-      console.log('Unauthorized access attempt - role:', session.user.role, 'email:', session.user.email)
+    const user = (session as { user: SessionUser }).user
+    if (user.role !== 'ADMIN' && user.email !== 'ahmadmuaaz292@gmail.com') {
+      console.log('Unauthorized access attempt - role:', user.role, 'email:', user.email)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
