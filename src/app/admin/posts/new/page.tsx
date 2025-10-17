@@ -6,6 +6,14 @@ import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 
+interface SessionUser {
+  id: string
+  name?: string | null
+  email?: string | null
+  image?: string | null
+  role: string
+}
+
 export default function NewPostPage() {
   const { data: session } = useSession()
   const router = useRouter()
@@ -120,7 +128,7 @@ export default function NewPostPage() {
     }))
   }
 
-  if (!session || session.user.role !== 'ADMIN') {
+  if (!session || !session.user || (session.user as SessionUser).role !== 'ADMIN') {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

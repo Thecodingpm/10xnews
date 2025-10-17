@@ -6,6 +6,14 @@ import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 
+interface SessionUser {
+  id: string
+  name?: string | null
+  email?: string | null
+  image?: string | null
+  role: string
+}
+
 export default function EditPostPage() {
   const { data: session } = useSession()
   const router = useRouter()
@@ -104,7 +112,7 @@ export default function EditPostPage() {
         try {
           const errorData = JSON.parse(responseText)
           setError(errorData.error || `Failed to update post (Status: ${response.status})`)
-        } catch (parseError) {
+        } catch {
           setError(`Server returned non-JSON response (Status: ${response.status}): ${responseText.substring(0, 100)}...`)
         }
       }
@@ -141,7 +149,7 @@ export default function EditPostPage() {
     )
   }
 
-  if (!session || session.user.role !== 'ADMIN') {
+  if (!session || !session.user || (session.user as SessionUser).role !== 'ADMIN') {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

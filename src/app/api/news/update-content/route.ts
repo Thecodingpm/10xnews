@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { newsAPI } from '@/lib/newsapi'
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     console.log('Updating article content...')
     

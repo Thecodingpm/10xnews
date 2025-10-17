@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { formatDate, formatReadingTime } from '@/lib/utils'
+import { formatDate } from '@/lib/utils'
 import { ClockIcon, EyeIcon } from '@heroicons/react/24/outline'
 
 interface PostCardProps {

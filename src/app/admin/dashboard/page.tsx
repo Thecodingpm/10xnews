@@ -23,6 +23,31 @@ interface Post {
   }
 }
 
+interface DebugPost {
+  id: string
+  title: string
+  slug: string
+  published: boolean
+  featured: boolean
+  views: number
+  publishedAt: string | null
+  createdAt: string
+  author: {
+    name: string
+  }
+  category?: {
+    name: string
+  }
+}
+
+interface SessionUser {
+  id: string
+  name?: string | null
+  email?: string | null
+  image?: string | null
+  role: string
+}
+
 export default function AdminDashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -32,7 +57,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (status === 'loading') return
 
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!session || !session.user || (session.user as SessionUser).role !== 'ADMIN') {
       router.push('/admin/login')
       return
     }
@@ -47,7 +72,7 @@ export default function AdminDashboard() {
       const data = await response.json()
       
       // Transform the data to match the expected format
-      const transformedPosts = data.posts.map((post: any) => ({
+      const transformedPosts = data.posts.map((post: DebugPost) => ({
         id: post.id,
         title: post.title,
         slug: post.slug,
@@ -99,7 +124,7 @@ export default function AdminDashboard() {
     )
   }
 
-  if (!session || session.user.role !== 'ADMIN') {
+  if (!session || !session.user || (session.user as SessionUser).role !== 'ADMIN') {
     return null
   }
 

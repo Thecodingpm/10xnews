@@ -1,5 +1,4 @@
 // Mock Prisma client for when DATABASE_URL is not available
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const createMockPrisma = () => ({
   post: {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any

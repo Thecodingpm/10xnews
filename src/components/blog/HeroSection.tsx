@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { ChevronRightIcon, ClockIcon, EyeIcon } from '@heroicons/react/24/outline'
-import { formatDate, formatReadingTime } from '@/lib/utils'
+import { formatDate } from '@/lib/utils'
 
 interface HeroPost {
   id: string

@@ -111,7 +111,7 @@ export const metadata: Metadata = {
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
   const resolvedSearchParams = await searchParams
-  const [{ posts, pagination }, categories] = await Promise.all([
+  const [{ posts, pagination }] = await Promise.all([
     getPosts(resolvedSearchParams),
     getCategories(),
   ])
@@ -146,7 +146,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         {/* Articles Feed */}
         <div className="space-y-6">
           {posts.length > 0 ? (
-            posts.map((post, index) => (
+            posts.map((post) => (
               <div key={post.id}>
                 
                 {/* Article Card */}

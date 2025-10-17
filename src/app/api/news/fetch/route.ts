@@ -100,6 +100,7 @@ export async function POST(request: NextRequest) {
                 const postData = await convertNewsArticleToPost(article, categoryRecord.id, true)
 
         // Create the post (remove sourceUrl and sourceName for now)
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { sourceUrl, sourceName, ...postDataWithoutSource } = postData
         const post = await prisma.post.create({
           data: {

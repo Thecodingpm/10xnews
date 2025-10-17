@@ -5,6 +5,14 @@ import { signIn, getSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
+interface SessionUser {
+  id: string
+  name?: string | null
+  email?: string | null
+  image?: string | null
+  role: string
+}
+
 function AdminLoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -18,7 +26,7 @@ function AdminLoginForm() {
   useEffect(() => {
     const checkSession = async () => {
       const session = await getSession()
-      if (session?.user?.role === 'ADMIN') {
+      if ((session?.user as SessionUser)?.role === 'ADMIN') {
         router.push(callbackUrl)
       }
     }
@@ -41,7 +49,7 @@ function AdminLoginForm() {
         setError('Access failed')
       } else {
         const session = await getSession()
-        if (session?.user?.role === 'ADMIN') {
+        if ((session?.user as SessionUser)?.role === 'ADMIN') {
           // Clean redirect to prevent loops
           const cleanCallbackUrl = callbackUrl.startsWith('/admin/login') 
             ? '/admin/dashboard' 
@@ -51,7 +59,7 @@ function AdminLoginForm() {
           setError('Access denied. Admin privileges required.')
         }
       }
-    } catch (error) {
+    } catch {
       setError('An error occurred. Please try again.')
     } finally {
       setIsLoading(false)

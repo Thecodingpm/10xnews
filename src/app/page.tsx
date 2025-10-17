@@ -91,7 +91,7 @@ export default async function Home() {
         {/* Articles Feed */}
         <div className="space-y-6">
           {latestPosts.length > 0 ? (
-            latestPosts.map((post, index) => (
+            latestPosts.map((post) => (
               <div key={post.id}>
                 
                 {/* Article Card */}

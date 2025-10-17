@@ -10,7 +10,7 @@ import {
   where, 
   orderBy, 
   limit, 
-  startAfter,
+  // startAfter,
   increment
 } from 'firebase/firestore'
 import { db } from './firebase'

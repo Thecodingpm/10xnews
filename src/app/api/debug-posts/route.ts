@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { getPosts } from '@/lib/firebase-data'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     console.log('Debug API: Fetching all posts...')
     const posts = await getPosts()

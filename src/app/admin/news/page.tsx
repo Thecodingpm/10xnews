@@ -16,6 +16,14 @@ interface NewsPreview {
   author: string | null
 }
 
+interface SessionUser {
+  id: string
+  name?: string | null
+  email?: string | null
+  image?: string | null
+  role: string
+}
+
 export default function NewsManagement() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -28,7 +36,7 @@ export default function NewsManagement() {
 
   useEffect(() => {
     if (status === 'loading') return
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!session || !session.user || (session.user as SessionUser).role !== 'ADMIN') {
       router.push('/admin/login')
       return
     }
@@ -147,7 +155,7 @@ export default function NewsManagement() {
     )
   }
 
-  if (!session || session.user.role !== 'ADMIN') {
+  if (!session || !session.user || (session.user as SessionUser).role !== 'ADMIN') {
     return null
   }
 
