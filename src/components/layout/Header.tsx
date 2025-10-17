@@ -9,7 +9,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme, resolvedTheme } = useTheme()
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -97,12 +97,12 @@ export default function Header() {
           {/* Theme Toggle & Mobile Menu Button */}
           <div className="flex items-center space-x-4">
             <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
               className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               aria-label="Toggle theme"
             >
               {mounted ? (
-                theme === 'dark' ? (
+                resolvedTheme === 'dark' ? (
                   <SunIcon className="h-5 w-5" />
                 ) : (
                   <MoonIcon className="h-5 w-5" />
