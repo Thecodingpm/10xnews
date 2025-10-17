@@ -64,7 +64,7 @@ async function getPosts(searchParams: Awaited<BlogPageProps['searchParams']>) {
     }> = []
     let totalCount = 0
     
-    if (prisma) {
+    if (prisma && process.env.DATABASE_URL) {
       [posts, totalCount] = await Promise.all([
         prisma.post.findMany({
           where,
@@ -109,7 +109,7 @@ async function getPosts(searchParams: Awaited<BlogPageProps['searchParams']>) {
 
 async function getCategories() {
   try {
-    if (!prisma) {
+    if (!prisma || !process.env.DATABASE_URL) {
       return []
     }
 

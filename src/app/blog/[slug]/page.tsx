@@ -13,7 +13,7 @@ interface BlogPostPageProps {
 
 async function getPost(slug: string) {
   try {
-    if (!prisma) {
+    if (!prisma || !process.env.DATABASE_URL) {
       return null
     }
 

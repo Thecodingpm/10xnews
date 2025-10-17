@@ -34,7 +34,8 @@ export default async function Home() {
   }> = []
   
   try {
-    if (prisma) {
+    // Only try to fetch from database if DATABASE_URL is available
+    if (prisma && process.env.DATABASE_URL) {
       [featuredPosts, latestPosts] = await Promise.all([
         prisma.post.findMany({
           where: { published: true, featured: true },

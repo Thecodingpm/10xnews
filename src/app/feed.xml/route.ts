@@ -4,7 +4,7 @@ export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 
   try {
-    if (!prisma) {
+    if (!prisma || !process.env.DATABASE_URL) {
       return new Response('<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>10xNews</title><description>Latest tech news</description></channel></rss>', {
         headers: {
           'Content-Type': 'application/xml',

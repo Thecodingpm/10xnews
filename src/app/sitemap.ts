@@ -8,7 +8,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     let posts: Array<{ slug: string; updatedAt: Date }> = []
     let categories: Array<{ slug: string; updatedAt: Date }> = []
     
-    if (prisma) {
+    // Only try to fetch from database if DATABASE_URL is available
+    if (prisma && process.env.DATABASE_URL) {
       // Get all published posts
       posts = await prisma.post.findMany({
         where: {
