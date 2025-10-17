@@ -15,6 +15,10 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    if (!prisma) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 })
+    }
+
     const post = await prisma.post.findUnique({
       where: { id: resolvedParams.id },
       include: {
@@ -52,6 +56,10 @@ export async function PUT(
 
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (!prisma) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 })
     }
 
     const body = await request.json()
@@ -110,6 +118,10 @@ export async function DELETE(
 
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (!prisma) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 })
     }
 
     await prisma.post.delete({

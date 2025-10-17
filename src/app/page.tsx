@@ -8,33 +8,66 @@ import Link from 'next/link'
 export default async function Home() {
   console.log('Fetching posts for home page...')
   
-  const [featuredPosts, latestPosts] = await Promise.all([
-    prisma.post.findMany({
-      where: { published: true, featured: true },
-      include: {
-        author: { select: { name: true } },
-        category: { select: { name: true, color: true } }
-      },
-      orderBy: { publishedAt: 'desc' },
-      take: 3
-    }),
-    prisma.post.findMany({
-      where: { published: true },
-      include: {
-        author: { select: { name: true } },
-        category: { select: { name: true, color: true } }
-      },
-      orderBy: [
-        { publishedAt: 'desc' },
-        { createdAt: 'desc' }
-      ],
-      take: 6
-    })
-  ])
+  let featuredPosts: Array<{
+    id: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    coverImage: string | null;
+    publishedAt: Date | null;
+    readTime: number;
+    views: number;
+    author: { name: string | null };
+    category: { name: string; color: string | null } | null;
+  }> = []
+  let latestPosts: Array<{
+    id: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    coverImage: string | null;
+    publishedAt: Date | null;
+    readTime: number;
+    views: number;
+    author: { name: string | null };
+    category: { name: string; color: string | null } | null;
+  }> = []
+  
+  try {
+    if (prisma) {
+      [featuredPosts, latestPosts] = await Promise.all([
+        prisma.post.findMany({
+          where: { published: true, featured: true },
+          include: {
+            author: { select: { name: true } },
+            category: { select: { name: true, color: true } }
+          },
+          orderBy: { publishedAt: 'desc' },
+          take: 3
+        }),
+        prisma.post.findMany({
+          where: { published: true },
+          include: {
+            author: { select: { name: true } },
+            category: { select: { name: true, color: true } }
+          },
+          orderBy: [
+            { publishedAt: 'desc' },
+            { createdAt: 'desc' }
+          ],
+          take: 6
+        })
+      ])
+    }
+  } catch (error) {
+    console.error('Error fetching posts:', error)
+    featuredPosts = []
+    latestPosts = []
+  }
 
   console.log('Featured posts:', featuredPosts.length)
   console.log('Latest posts:', latestPosts.length)
-  console.log('Latest posts data:', latestPosts.map(p => ({ id: p.id, title: p.title, published: p.published })))
+  console.log('Latest posts data:', latestPosts.map(p => ({ id: p.id, title: p.title, publishedAt: p.publishedAt })))
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">

@@ -3,6 +3,10 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
+    if (!prisma) {
+      return NextResponse.json({ categories: [] })
+    }
+
     const categories = await prisma.category.findMany({
       orderBy: {
         name: 'asc',

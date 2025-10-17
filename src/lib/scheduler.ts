@@ -80,6 +80,11 @@ export class NewsScheduler {
 
       console.log(`Fetched ${newsResponse.articles.length} articles for ${category}`)
 
+      if (!prisma) {
+        console.log('Database not available, skipping news fetch')
+        return
+      }
+
       // Get or create admin user
       let adminUser = await prisma.user.findFirst({
         where: { role: 'ADMIN' }
@@ -169,6 +174,11 @@ export class NewsScheduler {
     try {
       console.log('Starting article cleanup...')
       
+      if (!prisma) {
+        console.log('Database not available, skipping cleanup')
+        return
+      }
+      
       // Get all API-sourced articles (those with sourceUrl)
       const apiArticles = await prisma.post.findMany({
         where: {
@@ -205,6 +215,11 @@ export class NewsScheduler {
   async fetchNewsNow(category: string = 'tech', limit: number = 10) {
     try {
       console.log(`Manual fetch: ${category}, limit: ${limit}`)
+
+      if (!prisma) {
+        console.log('Database not available, skipping manual fetch')
+        return
+      }
 
       // Get news based on category
       let newsResponse

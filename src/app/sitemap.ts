@@ -5,27 +5,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 
   try {
-    // Get all published posts
-    const posts = await prisma.post.findMany({
-      where: {
-        published: true,
-      },
-      select: {
-        slug: true,
-        updatedAt: true,
-      },
-      orderBy: {
-        publishedAt: 'desc',
-      },
-    })
+    let posts: Array<{ slug: string; updatedAt: Date }> = []
+    let categories: Array<{ slug: string; updatedAt: Date }> = []
+    
+    if (prisma) {
+      // Get all published posts
+      posts = await prisma.post.findMany({
+        where: {
+          published: true,
+        },
+        select: {
+          slug: true,
+          updatedAt: true,
+        },
+        orderBy: {
+          publishedAt: 'desc',
+        },
+      })
 
-    // Get all categories
-    const categories = await prisma.category.findMany({
-      select: {
-        slug: true,
-        updatedAt: true,
-      },
-    })
+      // Get all categories
+      categories = await prisma.category.findMany({
+        select: {
+          slug: true,
+          updatedAt: true,
+        },
+      })
+    }
 
     // Static pages
     const staticPages = [

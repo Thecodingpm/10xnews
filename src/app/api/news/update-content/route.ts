@@ -6,6 +6,10 @@ export async function POST(request: NextRequest) {
   try {
     console.log('Updating article content...')
     
+    if (!prisma) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 })
+    }
+    
     // Get all articles that have sourceUrl but short content
     const articles = await prisma.post.findMany({
       where: {

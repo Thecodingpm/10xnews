@@ -11,6 +11,10 @@ interface CategoryPageProps {
 
 async function getCategoryPosts(slug: string) {
   try {
+    if (!prisma) {
+      return null
+    }
+
     const category = await prisma.category.findUnique({
       where: { slug },
       include: {

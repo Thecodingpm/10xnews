@@ -11,6 +11,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    if (!prisma) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 })
+    }
+
     const posts = await prisma.post.findMany({
       include: {
         author: {
@@ -54,6 +58,10 @@ export async function POST(request: NextRequest) {
     if (session.user.role !== 'ADMIN' && session.user.email !== 'ahmadmuaaz292@gmail.com') {
       console.log('Unauthorized access attempt - role:', session.user.role, 'email:', session.user.email)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (!prisma) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 })
     }
 
     const body = await request.json()

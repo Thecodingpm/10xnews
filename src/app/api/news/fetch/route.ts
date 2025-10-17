@@ -33,6 +33,10 @@ export async function POST(request: NextRequest) {
 
     console.log(`Fetched ${newsResponse.articles.length} articles`)
 
+    if (!prisma) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 })
+    }
+
     // Get or create admin user
     let adminUser = await prisma.user.findFirst({
       where: { role: 'ADMIN' }

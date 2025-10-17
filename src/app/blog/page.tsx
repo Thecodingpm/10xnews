@@ -50,32 +50,48 @@ async function getPosts(searchParams: Awaited<BlogPageProps['searchParams']>) {
       }
     }
 
-    const [posts, totalCount] = await Promise.all([
-      prisma.post.findMany({
-        where,
-        include: {
-          author: {
-            select: {
-              name: true,
+    let posts: Array<{
+      id: string;
+      title: string;
+      slug: string;
+      excerpt: string;
+      coverImage: string | null;
+      publishedAt: Date | null;
+      readTime: number;
+      views: number;
+      author: { name: string | null };
+      category: { name: string; slug: string; color: string | null } | null;
+    }> = []
+    let totalCount = 0
+    
+    if (prisma) {
+      [posts, totalCount] = await Promise.all([
+        prisma.post.findMany({
+          where,
+          include: {
+            author: {
+              select: {
+                name: true,
+              },
+            },
+            category: {
+              select: {
+                name: true,
+                slug: true,
+                color: true,
+              },
             },
           },
-          category: {
-            select: {
-              name: true,
-              slug: true,
-              color: true,
-            },
-          },
-        },
-        orderBy: [
-          { publishedAt: 'desc' },
-          { createdAt: 'desc' }
-        ],
-        take: limit,
-        skip,
-      }),
-      prisma.post.count({ where }),
-    ])
+          orderBy: [
+            { publishedAt: 'desc' },
+            { createdAt: 'desc' }
+          ],
+          take: limit,
+          skip,
+        }),
+        prisma.post.count({ where }),
+      ])
+    }
 
     return {
       posts,
@@ -93,6 +109,10 @@ async function getPosts(searchParams: Awaited<BlogPageProps['searchParams']>) {
 
 async function getCategories() {
   try {
+    if (!prisma) {
+      return []
+    }
+
     const categories = await prisma.category.findMany({
       include: {
         _count: {

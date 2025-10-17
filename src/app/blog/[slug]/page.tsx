@@ -13,6 +13,10 @@ interface BlogPostPageProps {
 
 async function getPost(slug: string) {
   try {
+    if (!prisma) {
+      return null
+    }
+
     const post = await prisma.post.findUnique({
       where: {
         slug: slug,
