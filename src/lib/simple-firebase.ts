@@ -68,7 +68,7 @@ export async function getAllPosts(): Promise<SimplePost[]> {
         featured: postData.featured || false,
         sponsored: postData.sponsored || false,
         authorId: postData.authorId || '',
-        author: { name: 'Unknown', image: null },
+        author: { name: 'Unknown', image: undefined },
         categoryId: postData.categoryId,
         category: undefined,
         tags: postData.tags || [],

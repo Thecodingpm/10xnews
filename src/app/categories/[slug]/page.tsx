@@ -18,7 +18,7 @@ async function getCategoryPosts(slug: string) {
           where: { published: true },
           include: {
             author: { select: { name: true } },
-            category: { select: { name: true, color: true } }
+            category: { select: { name: true, slug: true, color: true } }
           },
           orderBy: { publishedAt: 'desc' },
           take: 12
@@ -100,7 +100,22 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             {posts.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {posts.map((post) => (
-                  <PostCard key={post.id} post={post} />
+                  <PostCard key={post.id} post={{
+                    ...post,
+                    coverImage: post.coverImage || undefined,
+                    author: {
+                      name: post.author.name || '10xNews Staff',
+                      image: undefined
+                    },
+                    publishedAt: post.publishedAt || new Date(),
+                    readTime: post.readTime || 5,
+                    views: post.views || 0,
+                    category: post.category ? {
+                      name: post.category.name,
+                      slug: post.category.slug || 'uncategorized',
+                      color: post.category.color || 'bg-blue-500'
+                    } : undefined
+                  }} />
                 ))}
               </div>
             ) : (

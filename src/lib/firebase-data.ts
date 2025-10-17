@@ -124,7 +124,7 @@ export async function getPosts(whereClause?: unknown, orderByClause?: unknown, l
           }
         } catch (error) {
           console.error('Error fetching author:', error)
-          post.author = { name: 'Unknown', image: null }
+          post.author = { name: 'Unknown', image: undefined }
         }
       }
       
@@ -190,7 +190,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
         }
       } catch (error) {
         console.error('Error fetching author:', error)
-        post.author = { name: 'Unknown', image: null }
+        post.author = { name: 'Unknown', image: undefined }
       }
     }
     

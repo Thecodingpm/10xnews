@@ -236,7 +236,7 @@ export function AdDetectionDebug() {
       })
       
       setDetectionInfo({
-        brave,
+        brave: brave || false,
         adBlockers,
         adsAllowed: !brave && adBlockers.length === 0
       })

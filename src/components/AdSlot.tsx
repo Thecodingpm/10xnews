@@ -17,7 +17,7 @@ export default function AdSlot({
   className = '',
   testMode = false
 }: AdSlotProps) {
-  const adRef = useRef<HTMLDivElement>(null)
+  const adRef = useRef<HTMLModElement>(null)
 
   useEffect(() => {
     if (testMode) return

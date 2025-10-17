@@ -1,231 +1,126 @@
-# 🔥 Firebase Setup Guide
+# 🔥 Firebase + NextAuth Setup for 10xNews
 
-This guide will help you set up Firebase Firestore for your blogging website instead of MongoDB.
+## 🔧 Environment Variables for Firebase
 
-## 🚀 **Step 1: Create Firebase Project**
-
-1. **Go to [Firebase Console](https://console.firebase.google.com/)**
-2. **Click "Create a project"**
-3. **Enter project name**: `your-blog-website`
-4. **Enable Google Analytics** (optional)
-5. **Click "Create project"**
-
-## 🔧 **Step 2: Enable Firestore Database**
-
-1. **In your Firebase project, go to "Firestore Database"**
-2. **Click "Create database"**
-3. **Choose "Start in test mode"** (for development)
-4. **Select a location** (choose closest to your users)
-5. **Click "Done"**
-
-## 🔑 **Step 3: Get Firebase Configuration**
-
-1. **Go to Project Settings** (gear icon)
-2. **Scroll down to "Your apps"**
-3. **Click "Web app" icon** (`</>`)
-4. **Register app name**: `blog-website`
-5. **Copy the config object**
-
-## 📝 **Step 4: Set Up Environment Variables**
-
-1. **Create `.env.local` file**:
-   ```bash
-   cp env.example .env.local
-   ```
-
-2. **Add your Firebase config**:
-   ```env
-   # Firebase Configuration
-   NEXT_PUBLIC_FIREBASE_API_KEY="your-api-key-here"
-   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your-project.firebaseapp.com"
-   NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-project-id"
-   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="your-project.appspot.com"
-   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="your-sender-id"
-   NEXT_PUBLIC_FIREBASE_APP_ID="your-app-id"
-
-   # Firebase Admin (for server-side operations)
-   FIREBASE_PROJECT_ID="your-project-id"
-   FIREBASE_CLIENT_EMAIL="your-service-account-email"
-   FIREBASE_PRIVATE_KEY="your-private-key"
-
-   # NextAuth
-   NEXTAUTH_URL="http://localhost:3000"
-   NEXTAUTH_SECRET="your-secret-key-here"
-
-   # Site Configuration
-   NEXT_PUBLIC_SITE_URL="http://localhost:3000"
-   NEXT_PUBLIC_SITE_NAME="Your Blog Name"
-   NEXT_PUBLIC_SITE_DESCRIPTION="Your blog description"
-   ```
-
-## 🔐 **Step 5: Set Up Firebase Admin (Optional)**
-
-For server-side operations, you'll need a service account:
-
-1. **Go to Project Settings > Service Accounts**
-2. **Click "Generate new private key"**
-3. **Download the JSON file**
-4. **Extract the values**:
-   - `project_id` → `FIREBASE_PROJECT_ID`
-   - `client_email` → `FIREBASE_CLIENT_EMAIL`
-   - `private_key` → `FIREBASE_PRIVATE_KEY`
-
-## 🌱 **Step 6: Seed Your Database**
-
-Run the seed script to create sample data:
+Your `.env.local` file should contain:
 
 ```bash
-npm run seed
+# ===========================================
+# FIREBASE CONFIGURATION
+# ===========================================
+NEXT_PUBLIC_FIREBASE_API_KEY="AIzaSyBuBMojG_r-aQZ5Hj7sWu-Jc0g1Qa5SNoE"
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="xnews-630ce.firebaseapp.com"
+NEXT_PUBLIC_FIREBASE_PROJECT_ID="xnews-630ce"
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="xnews-630ce.firebasestorage.app"
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="983807637967"
+NEXT_PUBLIC_FIREBASE_APP_ID="1:983807637967:web:d7361437a6532bb5de7aba"
+
+# ===========================================
+# NEXT-AUTH CONFIGURATION
+# ===========================================
+NEXTAUTH_SECRET="your-super-secret-key-here-change-this-in-production"
+NEXTAUTH_URL="http://localhost:3000"
+
+# ===========================================
+# NEWS API CONFIGURATION
+# ===========================================
+NEWS_API_KEY="5c2246a913b448149f5ffc8a3cd87400"
+
+# ===========================================
+# ADMIN CREDENTIALS
+# ===========================================
+ADMIN_EMAIL="admin@10xnews.com"
+ADMIN_PASSWORD="your-secure-admin-password-here"
 ```
 
-This will create:
-- ✅ Admin user
-- ✅ Sample categories
-- ✅ Sample blog posts
+## 🔥 How to Get Firebase Configuration
 
-## 🎯 **Step 7: Test Your Setup**
+### **Step 1: Access Firebase Console**
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Select your project: `xnews-630ce`
 
-1. **Start the development server**:
-   ```bash
-   npm run dev
-   ```
+### **Step 2: Get Web App Configuration**
+1. Click **⚙️ Settings** → **"Project settings"**
+2. Scroll to **"Your apps"** section
+3. Click on your web app (or create one)
+4. Copy the config values
 
-2. **Visit your website**: `http://localhost:3000`
+### **Step 3: Set Up Firestore Database**
+1. Go to **"Firestore Database"** in Firebase Console
+2. Click **"Create database"**
+3. Choose **"Start in test mode"** (for development)
+4. Select a location (closest to your users)
 
-3. **Check admin dashboard**: `http://localhost:3000/admin/login`
-   - Email: `admin@example.com`
-   - Password: Set up in Firebase Auth
+### **Step 4: Enable Authentication**
+1. Go to **"Authentication"** in Firebase Console
+2. Click **"Get started"**
+3. Go to **"Sign-in method"** tab
+4. Enable **"Email/Password"** provider
 
-## 📊 **Firebase Collections Structure**
-
-Your Firestore will have these collections:
-
-### **Posts Collection**
-```javascript
-{
-  id: "post-id",
-  title: "Post Title",
-  slug: "post-slug",
-  content: "<h1>HTML content</h1>",
-  excerpt: "Brief description",
-  coverImage: "https://image-url.com",
-  published: true,
-  featured: false,
-  sponsored: false,
-  authorId: "user-id",
-  categoryId: "category-id",
-  tags: ["tag1", "tag2"],
-  seoTitle: "SEO Title",
-  seoDescription: "SEO Description",
-  keywords: ["keyword1", "keyword2"],
-  views: 0,
-  readTime: 5,
-  createdAt: "2024-01-01T00:00:00Z",
-  updatedAt: "2024-01-01T00:00:00Z",
-  publishedAt: "2024-01-01T00:00:00Z"
-}
-```
-
-### **Categories Collection**
-```javascript
-{
-  id: "category-id",
-  name: "Category Name",
-  slug: "category-slug",
-  description: "Category description",
-  color: "bg-blue-500",
-  createdAt: "2024-01-01T00:00:00Z",
-  updatedAt: "2024-01-01T00:00:00Z"
-}
-```
-
-### **Users Collection**
-```javascript
-{
-  id: "user-id",
-  name: "User Name",
-  email: "user@example.com",
-  image: "https://avatar-url.com",
-  role: "ADMIN" | "USER",
-  createdAt: "2024-01-01T00:00:00Z",
-  updatedAt: "2024-01-01T00:00:00Z"
-}
-```
-
-## 🔒 **Security Rules (Important!)**
-
-Add these security rules in Firestore:
-
-1. **Go to Firestore Database > Rules**
-2. **Replace with**:
+### **Step 5: Set Up Firestore Security Rules**
+Go to **"Firestore Database"** → **"Rules"** and add:
 
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Posts - readable by everyone, writable by admins
-    match /posts/{postId} {
+    // Allow read access to all posts
+    match /posts/{document} {
       allow read: if true;
-      allow write: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN';
+      allow write: if request.auth != null && request.auth.token.role == 'ADMIN';
     }
     
-    // Categories - readable by everyone, writable by admins
-    match /categories/{categoryId} {
+    // Allow read access to all categories
+    match /categories/{document} {
       allow read: if true;
-      allow write: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN';
+      allow write: if request.auth != null && request.auth.token.role == 'ADMIN';
     }
     
-    // Users - readable by authenticated users, writable by admins
-    match /users/{userId} {
+    // Allow read access to all users
+    match /users/{document} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN';
+      allow write: if request.auth != null && request.auth.token.role == 'ADMIN';
     }
   }
 }
 ```
 
-## 🚀 **Deployment**
+## 🚀 Deployment with Firebase
 
-When deploying to Vercel:
+### **For Vercel:**
+Add these environment variables in Vercel dashboard:
 
-1. **Add all environment variables** in Vercel dashboard
-2. **Update `NEXTAUTH_URL`** to your production URL
-3. **Update `NEXT_PUBLIC_SITE_URL`** to your production URL
+| Variable | Value |
+|----------|-------|
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | Your Firebase API key |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | your-project.firebaseapp.com |
+| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | your-project-id |
+| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | your-project.firebasestorage.app |
+| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Your sender ID |
+| `NEXT_PUBLIC_FIREBASE_APP_ID` | Your app ID |
+| `NEXTAUTH_SECRET` | Generate at https://generate-secret.vercel.app/32 |
+| `NEXTAUTH_URL` | https://yourdomain.vercel.app |
+| `NEWS_API_KEY` | 5c2246a913b448149f5ffc8a3cd87400 |
+| `ADMIN_EMAIL` | admin@10xnews.com |
+| `ADMIN_PASSWORD` | Your secure password |
 
-## ✅ **Advantages of Firebase over MongoDB**
+## 🔐 Security Notes
 
-- ✅ **Easier setup** - No server configuration needed
-- ✅ **Real-time updates** - Built-in real-time listeners
-- ✅ **Free tier** - Generous free usage limits
-- ✅ **Authentication** - Built-in user management
-- ✅ **Hosting** - Can host your app on Firebase
-- ✅ **Security** - Built-in security rules
-- ✅ **Scalability** - Auto-scales with your traffic
+1. **Change admin credentials** before deploying
+2. **Generate strong NEXTAUTH_SECRET**
+3. **Update Firestore rules** for production
+4. **Use Firebase Auth** for user management
+5. **Enable Firebase Security Rules**
 
-## 🆘 **Troubleshooting**
+## 📝 Quick Test
 
-### **Common Issues:**
+1. **Start local server**: `npm run dev`
+2. **Check Firebase connection**: Visit http://localhost:3000
+3. **Test admin login**: http://localhost:3000/admin/login
+4. **Check Firestore**: Firebase Console → Firestore Database
 
-1. **"Firebase not initialized"**
-   - Check your environment variables
-   - Make sure `.env.local` is in the root directory
+## 🎯 Admin Access After Deployment
 
-2. **"Permission denied"**
-   - Check your Firestore security rules
-   - Make sure user has proper role
-
-3. **"Collection not found"**
-   - Run the seed script: `npm run seed`
-   - Check if collections exist in Firebase Console
-
-### **Need Help?**
-- Check the [Firebase Documentation](https://firebase.google.com/docs)
-- Review the console for error messages
-- Make sure all environment variables are set correctly
-
----
-
-**🎉 You're all set! Your blog is now powered by Firebase Firestore!**
+- **URL**: `https://yourdomain.com/admin/login`
+- **Email**: Your `ADMIN_EMAIL` value
+- **Password**: Your `ADMIN_PASSWORD` value

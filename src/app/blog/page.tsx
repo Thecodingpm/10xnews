@@ -21,7 +21,12 @@ async function getPosts(searchParams: Awaited<BlogPageProps['searchParams']>) {
   const skip = (page - 1) * limit
 
   try {
-    const where: any = {
+    const where: {
+      published: boolean;
+      OR?: Array<{title?: {contains: string, mode: 'insensitive'}, excerpt?: {contains: string, mode: 'insensitive'}, content?: {contains: string, mode: 'insensitive'}}>;
+      category?: {slug: string};
+      tags?: {has: string};
+    } = {
       published: true,
     }
 
