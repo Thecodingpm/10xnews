@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { getPosts, getFeaturedPosts } from '@/lib/firebase-data'
 // import HeroSection from '@/components/blog/HeroSection'
 // import PostCard from '@/components/blog/PostCard'
 // import { HeaderAd, SidebarAd } from '@/components/AdSlot'
@@ -34,31 +35,45 @@ export default async function Home() {
   }> = []
   
   try {
-    // Only try to fetch from database if DATABASE_URL is available
-    if (prisma && process.env.DATABASE_URL) {
-      [featuredPosts, latestPosts] = await Promise.all([
-        prisma.post.findMany({
-          where: { published: true, featured: true },
-          include: {
-            author: { select: { name: true } },
-            category: { select: { name: true, color: true } }
-          },
-          orderBy: { publishedAt: 'desc' },
-          take: 3
-        }),
-        prisma.post.findMany({
-          where: { published: true },
-          include: {
-            author: { select: { name: true } },
-            category: { select: { name: true, color: true } }
-          },
-          orderBy: [
-            { publishedAt: 'desc' },
-            { createdAt: 'desc' }
-          ],
-          take: 6
-        })
+    // Try Firebase first, then fallback to Prisma if available
+    try {
+      const [firebaseFeatured, firebaseLatest] = await Promise.all([
+        getFeaturedPosts(3),
+        getPosts(6)
       ])
+      featuredPosts = firebaseFeatured || []
+      latestPosts = firebaseLatest || []
+      console.log('Fetched from Firebase')
+    } catch (firebaseError) {
+      console.log('Firebase not available, trying Prisma...', firebaseError)
+      
+      // Fallback to Prisma if Firebase fails
+      if (prisma && process.env.DATABASE_URL) {
+        [featuredPosts, latestPosts] = await Promise.all([
+          prisma.post.findMany({
+            where: { published: true, featured: true },
+            include: {
+              author: { select: { name: true } },
+              category: { select: { name: true, color: true } }
+            },
+            orderBy: { publishedAt: 'desc' },
+            take: 3
+          }),
+          prisma.post.findMany({
+            where: { published: true },
+            include: {
+              author: { select: { name: true } },
+              category: { select: { name: true, color: true } }
+            },
+            orderBy: [
+              { publishedAt: 'desc' },
+              { createdAt: 'desc' }
+            ],
+            take: 6
+          })
+        ])
+        console.log('Fetched from Prisma')
+      }
     }
   } catch (error) {
     console.error('Error fetching posts:', error)

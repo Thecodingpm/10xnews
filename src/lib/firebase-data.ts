@@ -22,7 +22,7 @@ export interface Post {
   slug: string
   content: string
   excerpt: string
-  coverImage?: string
+  coverImage: string | null
   published: boolean
   featured: boolean
   sponsored: boolean
@@ -32,11 +32,11 @@ export interface Post {
     image?: string
   }
   categoryId?: string
-  category?: {
+  category: {
     name: string
     slug: string
-    color?: string
-  }
+    color: string | null
+  } | null
   tags: string[]
   seoTitle?: string
   seoDescription?: string
@@ -45,7 +45,7 @@ export interface Post {
   readTime: number
   createdAt: Date
   updatedAt: Date
-  publishedAt?: Date
+  publishedAt: Date | null
 }
 
 export interface Category {
@@ -76,8 +76,12 @@ const usersCollection = collection(db, 'users')
 // Posts Functions
 export async function getPosts(whereClause?: unknown, orderByClause?: unknown, limitCount?: number) {
   try {
-    // For now, let's use a simple query without complex where clauses
-    let q = query(postsCollection, orderBy('publishedAt', 'desc'))
+    // Default to published posts only
+    let q = query(
+      postsCollection, 
+      where('published', '==', true),
+      orderBy('publishedAt', 'desc')
+    )
     
     if (limitCount) {
       q = query(q, limit(limitCount))
@@ -106,9 +110,10 @@ export async function getPosts(whereClause?: unknown, orderByClause?: unknown, l
       const post: Post = {
         id: docSnapshot.id,
         ...postData,
+        coverImage: postData.coverImage || null,
         createdAt: postData.createdAt?.toDate() || new Date(),
         updatedAt: postData.updatedAt?.toDate() || new Date(),
-        publishedAt: postData.publishedAt?.toDate(),
+        publishedAt: postData.publishedAt?.toDate() || null,
       } as Post
       
       // Get author data
@@ -137,12 +142,17 @@ export async function getPosts(whereClause?: unknown, orderByClause?: unknown, l
             post.category = {
               name: categoryData.name,
               slug: categoryData.slug,
-              color: categoryData.color,
+              color: categoryData.color || null,
             }
+          } else {
+            post.category = null
           }
         } catch (error) {
           console.error('Error fetching category:', error)
+          post.category = null
         }
+      } else {
+        post.category = null
       }
       
       posts.push(post)
@@ -151,6 +161,38 @@ export async function getPosts(whereClause?: unknown, orderByClause?: unknown, l
     return posts
   } catch (error) {
     console.error('Error fetching posts:', error)
+    return []
+  }
+}
+
+export async function getFeaturedPosts(limitCount: number = 3): Promise<Post[]> {
+  try {
+    const q = query(
+      postsCollection, 
+      where('published', '==', true),
+      where('featured', '==', true),
+      orderBy('publishedAt', 'desc'),
+      limit(limitCount)
+    )
+    
+    const snapshot = await getDocs(q)
+    const posts: Post[] = []
+    
+    for (const docSnapshot of snapshot.docs) {
+      const postData = docSnapshot.data()
+      posts.push({
+        id: docSnapshot.id,
+        ...postData,
+        coverImage: postData.coverImage || null,
+        createdAt: postData.createdAt?.toDate() || new Date(),
+        updatedAt: postData.updatedAt?.toDate() || new Date(),
+        publishedAt: postData.publishedAt?.toDate() || null,
+      } as Post)
+    }
+    
+    return posts
+  } catch (error) {
+    console.error('Error fetching featured posts:', error)
     return []
   }
 }
