@@ -5,6 +5,16 @@ import { signIn, getSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
+// Extend the default session type to include role
+interface ExtendedSession {
+  user?: {
+    name?: string | null
+    email?: string | null
+    image?: string | null
+    role?: string
+  }
+}
+
 export default function AdminLoginNextAuth() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -15,7 +25,8 @@ export default function AdminLoginNextAuth() {
   useEffect(() => {
     // Check if user is already logged in
     getSession().then((session) => {
-      if ((session?.user as any)?.role === 'ADMIN') {
+      const extendedSession = session as ExtendedSession
+      if (extendedSession?.user?.role === 'ADMIN') {
         router.push('/admin/dashboard')
       }
     })
