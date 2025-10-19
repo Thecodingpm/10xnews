@@ -4,6 +4,8 @@ import { getPosts, getFeaturedPosts } from '@/lib/firebase-data'
 // import PostCard from '@/components/blog/PostCard'
 // import { HeaderAd, SidebarAd } from '@/components/AdSlot'
 import Link from 'next/link'
+import Image from 'next/image'
+import ThemeDebug from '@/components/ThemeDebug'
 
 export default async function Home() {
   console.log('Fetching posts for home page...')
@@ -99,12 +101,14 @@ export default async function Home() {
                   <div className="flex flex-col md:flex-row gap-4">
                     {/* Image */}
                     <div className="md:w-2/5">
-                      <div className="aspect-video md:aspect-[4/3] bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                      <div className="aspect-video md:aspect-[4/3] bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden relative">
                         {post.coverImage ? (
-                          <img
+                          <Image
                             src={post.coverImage}
                             alt={post.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
@@ -170,6 +174,7 @@ export default async function Home() {
         </div>
 
       </div>
+      <ThemeDebug />
     </div>
   )
 }

@@ -16,6 +16,14 @@ export default function Header() {
     setMounted(true)
   }, [])
 
+  const toggleTheme = () => {
+    if (resolvedTheme === 'dark') {
+      setTheme('light')
+    } else {
+      setTheme('dark')
+    }
+  }
+
   const navigation = [
     { name: 'Home', href: '/' },
     { name: 'Tech & Telecom', href: '/categories/tech-telecom' },
@@ -97,7 +105,7 @@ export default function Header() {
           {/* Theme Toggle & Mobile Menu Button */}
           <div className="flex items-center space-x-4">
             <button
-              onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+              onClick={toggleTheme}
               className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               aria-label="Toggle theme"
             >
