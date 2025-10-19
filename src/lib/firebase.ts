@@ -13,8 +13,8 @@ const firebaseConfig = {
 
 // Initialize Firebase
 let app
-let db
-let auth
+let db: any = null
+let auth: any = null
 
 try {
   app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
