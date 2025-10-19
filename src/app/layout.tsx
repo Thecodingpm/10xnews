@@ -5,6 +5,7 @@ import Layout from "@/components/layout/Layout";
 import SessionProvider from "@/components/providers/SessionProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
+import PerformanceMonitor from "@/components/PerformanceMonitor";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -74,9 +75,8 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="light"
           enableSystem
-          disableTransitionOnChange
         >
           <SessionProvider>
             <AdminAuthProvider>
@@ -85,6 +85,7 @@ export default function RootLayout({
               </Layout>
             </AdminAuthProvider>
           </SessionProvider>
+          <PerformanceMonitor />
         </ThemeProvider>
       </body>
     </html>

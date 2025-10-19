@@ -5,10 +5,11 @@ import { getPosts, getFeaturedPosts } from '@/lib/firebase-data'
 // import { HeaderAd, SidebarAd } from '@/components/AdSlot'
 import Link from 'next/link'
 import Image from 'next/image'
-import ThemeDebug from '@/components/ThemeDebug'
+
+// Add caching for better performance
+export const revalidate = 300 // Revalidate every 5 minutes
 
 export default async function Home() {
-  console.log('Fetching posts for home page...')
   
   let featuredPosts: Array<{
     id: string;
@@ -44,9 +45,7 @@ export default async function Home() {
       ])
       featuredPosts = firebaseFeatured || []
       latestPosts = firebaseLatest || []
-      console.log('Fetched from Firebase - Featured:', featuredPosts.length, 'Latest:', latestPosts.length)
     } catch (firebaseError) {
-      console.log('Firebase not available, trying Prisma...', firebaseError)
       
       // Fallback to Prisma if Firebase fails
       if (prisma && process.env.DATABASE_URL) {
@@ -73,18 +72,12 @@ export default async function Home() {
             take: 6
           })
         ])
-        console.log('Fetched from Prisma')
       }
     }
   } catch (error) {
-    console.error('Error fetching posts:', error)
     featuredPosts = []
     latestPosts = []
   }
-
-  console.log('Featured posts:', featuredPosts.length)
-  console.log('Latest posts:', latestPosts.length)
-  console.log('Latest posts data:', latestPosts.map(p => ({ id: p.id, title: p.title, publishedAt: p.publishedAt })))
 
   return (
     <div className="min-h-screen">
@@ -109,6 +102,9 @@ export default async function Home() {
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            loading="lazy"
+                            placeholder="blur"
+                            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
@@ -174,7 +170,6 @@ export default async function Home() {
         </div>
 
       </div>
-      <ThemeDebug />
     </div>
   )
 }

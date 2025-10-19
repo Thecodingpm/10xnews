@@ -1,25 +1,11 @@
 @import "tailwindcss";
 
-* {
-  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
-}
-
 html {
   scroll-behavior: smooth;
 }
 
 body {
   font-family: Arial, Helvetica, sans-serif;
-  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-}
-
-/* Ensure dark mode classes work properly */
-.dark {
-  color-scheme: dark;
-}
-
-.light {
-  color-scheme: light;
 }
 
 @layer utilities {

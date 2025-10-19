@@ -9,19 +9,14 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
-  const { theme, setTheme, resolvedTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
 
-  // Prevent hydration mismatch
   useEffect(() => {
     setMounted(true)
   }, [])
 
   const toggleTheme = () => {
-    if (resolvedTheme === 'dark') {
-      setTheme('light')
-    } else {
-      setTheme('dark')
-    }
+    setTheme(theme === 'dark' ? 'light' : 'dark')
   }
 
   const navigation = [
@@ -110,13 +105,13 @@ export default function Header() {
               aria-label="Toggle theme"
             >
               {mounted ? (
-                resolvedTheme === 'dark' ? (
+                theme === 'dark' ? (
                   <SunIcon className="h-5 w-5" />
                 ) : (
                   <MoonIcon className="h-5 w-5" />
                 )
               ) : (
-                <div className="h-5 w-5" /> // Placeholder while loading
+                <div className="h-5 w-5" />
               )}
             </button>
 

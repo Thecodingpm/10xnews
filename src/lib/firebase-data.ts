@@ -74,8 +74,28 @@ const postsCollection = collection(db, 'posts')
 const categoriesCollection = collection(db, 'categories')
 const usersCollection = collection(db, 'users')
 
+// Simple in-memory cache
+const cache = new Map<string, { data: any; timestamp: number }>()
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+function getCachedData(key: string) {
+  const cached = cache.get(key)
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data
+  }
+  return null
+}
+
+function setCachedData(key: string, data: any) {
+  cache.set(key, { data, timestamp: Date.now() })
+}
+
 // Posts Functions
 export async function getPosts(whereClause?: unknown, orderByClause?: unknown, limitCount?: number) {
+  const cacheKey = `posts_${JSON.stringify({ whereClause, orderByClause, limitCount })}`
+  const cached = getCachedData(cacheKey)
+  if (cached) return cached
+
   try {
     // For debugging, let's fetch all posts first
     let q = query(
@@ -161,6 +181,7 @@ export async function getPosts(whereClause?: unknown, orderByClause?: unknown, l
       posts.push(post)
     }
     
+    setCachedData(cacheKey, posts)
     return posts
   } catch (error) {
     console.error('Error fetching posts:', error)
@@ -169,6 +190,10 @@ export async function getPosts(whereClause?: unknown, orderByClause?: unknown, l
 }
 
 export async function getFeaturedPosts(limitCount: number = 3): Promise<Post[]> {
+  const cacheKey = `featured_posts_${limitCount}`
+  const cached = getCachedData(cacheKey)
+  if (cached) return cached
+
   try {
     const q = query(
       postsCollection, 
@@ -193,6 +218,7 @@ export async function getFeaturedPosts(limitCount: number = 3): Promise<Post[]> 
       } as Post)
     }
     
+    setCachedData(cacheKey, posts)
     return posts
   } catch (error) {
     console.error('Error fetching featured posts:', error)
