@@ -3,11 +3,11 @@ import PostCard from '@/components/blog/PostCard'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
-interface PoliticsPageProps {
+interface SportsPageProps {
   params: Promise<{}>
 }
 
-async function getPoliticsPosts() {
+async function getSportsPosts() {
   try {
     const [posts, categories] = await Promise.all([
       getPosts(),
@@ -18,38 +18,43 @@ async function getPoliticsPosts() {
       return null
     }
 
-    // Filter posts by Pakistan politics - we'll look for posts with category slug 'pakistan-politics'
-    // or posts in Pakistan category that contain 'politics' in their content/tags
-    const politicsPosts = posts.filter(post => 
+    // Filter posts by Pakistan sports
+    const sportsPosts = posts.filter(post => 
       post.published && 
-      (post.category?.slug === 'pakistan-politics' || 
+      (post.category?.slug === 'pakistan-sports' || 
        (post.category?.slug === 'pakistan' && 
-        (post.title?.toLowerCase().includes('politics') ||
-         post.title?.toLowerCase().includes('political') ||
-         post.excerpt?.toLowerCase().includes('politics') ||
-         post.excerpt?.toLowerCase().includes('political'))))
+        (post.title?.toLowerCase().includes('sports') ||
+         post.title?.toLowerCase().includes('cricket') ||
+         post.title?.toLowerCase().includes('football') ||
+         post.title?.toLowerCase().includes('hockey') ||
+         post.title?.toLowerCase().includes('squash') ||
+         post.title?.toLowerCase().includes('tennis') ||
+         post.excerpt?.toLowerCase().includes('sports') ||
+         post.excerpt?.toLowerCase().includes('cricket') ||
+         post.excerpt?.toLowerCase().includes('football') ||
+         post.excerpt?.toLowerCase().includes('hockey'))))
     )
 
     return {
-      posts: politicsPosts,
-      totalPosts: politicsPosts.length
+      posts: sportsPosts,
+      totalPosts: sportsPosts.length
     }
   } catch (error) {
-    console.error('Error fetching politics posts:', error)
+    console.error('Error fetching sports posts:', error)
     return null
   }
 }
 
 export async function generateMetadata() {
   return {
-    title: 'Pakistan Politics | 10xNews',
-    description: 'Latest political news and analysis from Pakistan. Stay updated with government updates, elections, and political developments.',
-    keywords: ['Pakistan politics', 'political news', 'government', 'elections', 'political analysis', '10xNews']
+    title: 'Pakistan Sports | 10xNews',
+    description: 'Latest sports news and updates from Pakistan. Follow cricket, football, hockey, and other sports achievements and events.',
+    keywords: ['Pakistan sports', 'cricket', 'football', 'hockey', 'squash', 'tennis', 'sports news', '10xNews']
   }
 }
 
-export default async function PoliticsPage({ params }: PoliticsPageProps) {
-  const data = await getPoliticsPosts()
+export default async function SportsPage({ params }: SportsPageProps) {
+  const data = await getSportsPosts()
 
   if (!data) {
     notFound()
@@ -60,14 +65,14 @@ export default async function PoliticsPage({ params }: PoliticsPageProps) {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-red-600 text-white py-16">
+      <div className="bg-gradient-to-r from-orange-600 to-green-600 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Pakistan Politics
+              Pakistan Sports
             </h1>
-            <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-              Latest political news and analysis from Pakistan
+            <p className="text-xl text-orange-100 max-w-2xl mx-auto">
+              Latest sports news and updates from Pakistan
             </p>
           </div>
         </div>
@@ -98,7 +103,7 @@ export default async function PoliticsPage({ params }: PoliticsPageProps) {
                   <svg className="flex-shrink-0 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                   </svg>
-                  <span className="ml-4 text-gray-500 dark:text-gray-400">Politics</span>
+                  <span className="ml-4 text-gray-500 dark:text-gray-400">Sports</span>
                 </div>
               </li>
             </ol>
@@ -110,7 +115,7 @@ export default async function PoliticsPage({ params }: PoliticsPageProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Political News & Analysis
+            Sports News & Updates
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
             {totalPosts} {totalPosts === 1 ? 'article' : 'articles'} available
@@ -119,12 +124,12 @@ export default async function PoliticsPage({ params }: PoliticsPageProps) {
 
         {posts.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">🏛️</div>
+            <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">⚽</div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              No political articles yet
+              No sports articles yet
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              Check back later for political news and analysis from Pakistan.
+              Check back later for sports news and updates from Pakistan.
             </p>
           </div>
         ) : (

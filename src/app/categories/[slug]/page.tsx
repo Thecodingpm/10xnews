@@ -71,7 +71,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const { category, posts, totalPosts } = data
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

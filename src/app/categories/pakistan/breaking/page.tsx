@@ -3,11 +3,11 @@ import PostCard from '@/components/blog/PostCard'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
-interface PoliticsPageProps {
+interface BreakingPageProps {
   params: Promise<{}>
 }
 
-async function getPoliticsPosts() {
+async function getBreakingPosts() {
   try {
     const [posts, categories] = await Promise.all([
       getPosts(),
@@ -18,38 +18,41 @@ async function getPoliticsPosts() {
       return null
     }
 
-    // Filter posts by Pakistan politics - we'll look for posts with category slug 'pakistan-politics'
-    // or posts in Pakistan category that contain 'politics' in their content/tags
-    const politicsPosts = posts.filter(post => 
+    // Filter posts by Pakistan breaking news
+    const breakingPosts = posts.filter(post => 
       post.published && 
-      (post.category?.slug === 'pakistan-politics' || 
+      (post.category?.slug === 'pakistan-breaking' || 
        (post.category?.slug === 'pakistan' && 
-        (post.title?.toLowerCase().includes('politics') ||
-         post.title?.toLowerCase().includes('political') ||
-         post.excerpt?.toLowerCase().includes('politics') ||
-         post.excerpt?.toLowerCase().includes('political'))))
+        (post.title?.toLowerCase().includes('breaking') ||
+         post.title?.toLowerCase().includes('urgent') ||
+         post.title?.toLowerCase().includes('latest') ||
+         post.title?.toLowerCase().includes('update') ||
+         post.title?.toLowerCase().includes('developing') ||
+         post.excerpt?.toLowerCase().includes('breaking') ||
+         post.excerpt?.toLowerCase().includes('urgent') ||
+         post.excerpt?.toLowerCase().includes('latest'))))
     )
 
     return {
-      posts: politicsPosts,
-      totalPosts: politicsPosts.length
+      posts: breakingPosts,
+      totalPosts: breakingPosts.length
     }
   } catch (error) {
-    console.error('Error fetching politics posts:', error)
+    console.error('Error fetching breaking posts:', error)
     return null
   }
 }
 
 export async function generateMetadata() {
   return {
-    title: 'Pakistan Politics | 10xNews',
-    description: 'Latest political news and analysis from Pakistan. Stay updated with government updates, elections, and political developments.',
-    keywords: ['Pakistan politics', 'political news', 'government', 'elections', 'political analysis', '10xNews']
+    title: 'Pakistan Breaking News | 10xNews',
+    description: 'Latest breaking news and urgent updates from Pakistan. Stay informed with real-time news and developing stories.',
+    keywords: ['Pakistan breaking news', 'urgent news', 'latest updates', 'developing stories', 'real-time news', '10xNews']
   }
 }
 
-export default async function PoliticsPage({ params }: PoliticsPageProps) {
-  const data = await getPoliticsPosts()
+export default async function BreakingPage({ params }: BreakingPageProps) {
+  const data = await getBreakingPosts()
 
   if (!data) {
     notFound()
@@ -60,15 +63,27 @@ export default async function PoliticsPage({ params }: PoliticsPageProps) {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-red-600 text-white py-16">
+      <div className="bg-gradient-to-r from-red-600 to-orange-600 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Pakistan Politics
+              Pakistan Breaking News
             </h1>
-            <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-              Latest political news and analysis from Pakistan
+            <p className="text-xl text-red-100 max-w-2xl mx-auto">
+              Latest breaking news and urgent updates from Pakistan
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Breaking News Alert */}
+      <div className="bg-red-600 text-white py-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center">
+            <div className="flex items-center">
+              <div className="animate-pulse bg-white w-3 h-3 rounded-full mr-3"></div>
+              <span className="font-semibold">LIVE UPDATES</span>
+            </div>
           </div>
         </div>
       </div>
@@ -98,7 +113,7 @@ export default async function PoliticsPage({ params }: PoliticsPageProps) {
                   <svg className="flex-shrink-0 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                   </svg>
-                  <span className="ml-4 text-gray-500 dark:text-gray-400">Politics</span>
+                  <span className="ml-4 text-gray-500 dark:text-gray-400">Breaking News</span>
                 </div>
               </li>
             </ol>
@@ -110,7 +125,7 @@ export default async function PoliticsPage({ params }: PoliticsPageProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Political News & Analysis
+            Breaking News & Urgent Updates
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
             {totalPosts} {totalPosts === 1 ? 'article' : 'articles'} available
@@ -119,12 +134,12 @@ export default async function PoliticsPage({ params }: PoliticsPageProps) {
 
         {posts.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">🏛️</div>
+            <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">🚨</div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              No political articles yet
+              No breaking news yet
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              Check back later for political news and analysis from Pakistan.
+              Check back later for breaking news and urgent updates from Pakistan.
             </p>
           </div>
         ) : (
