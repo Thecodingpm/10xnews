@@ -13,11 +13,9 @@ export default function Header() {
 
   useEffect(() => {
     setMounted(true)
-    console.log('Theme on mount:', theme, 'Resolved:', resolvedTheme)
-  }, [theme, resolvedTheme])
+  }, [])
 
   const toggleTheme = () => {
-    console.log('Current theme:', theme, 'Resolved theme:', resolvedTheme)
     setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
   }
 
