@@ -6,23 +6,24 @@ export interface FallbackPost {
   content: string
   excerpt: string
   coverImage: string | null
+  images: string[] // Array of additional images
   published: boolean
   featured: boolean
   sponsored: boolean
   authorId: string
   author: {
     name: string
-    image: string | null
+    image?: string | null
   }
-  categoryId: string | null
+  categoryId?: string
   category: {
     name: string
     slug: string
     color: string | null
   } | null
   tags: string[]
-  seoTitle: string | null
-  seoDescription: string | null
+  seoTitle?: string
+  seoDescription?: string
   keywords: string[]
   views: number
   readTime: number
@@ -59,6 +60,7 @@ export const fallbackPosts: FallbackPost[] = [
     `,
     excerpt: 'Welcome to 10xNews - your trusted source for the latest news and updates across technology, business, health, education, and more.',
     coverImage: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=400&fit=crop',
+    images: [],
     published: true,
     featured: true,
     sponsored: false,
@@ -112,6 +114,7 @@ export const fallbackPosts: FallbackPost[] = [
     `,
     excerpt: 'Explore the latest technology trends shaping our world in 2024, from AI and machine learning to cloud computing and cybersecurity.',
     coverImage: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=400&fit=crop',
+    images: [],
     published: true,
     featured: false,
     sponsored: false,
