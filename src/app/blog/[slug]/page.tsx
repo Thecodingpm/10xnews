@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { getPostBySlug, incrementPostViews } from '@/lib/firebase-data'
+import { getFallbackPostBySlug } from '@/lib/fallback-data'
 import { formatDate } from '@/lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -15,18 +16,45 @@ interface BlogPostPageProps {
 
 async function getPost(slug: string) {
   try {
-    const post = await getPostBySlug(slug)
+    // Try Firebase first
+    let post = await getPostBySlug(slug)
+
+    // If Firebase fails or no post found, try fallback data
+    if (!post) {
+      console.log(`Post not found in Firebase for slug: ${slug}, trying fallback data`)
+      post = getFallbackPostBySlug(slug)
+    }
 
     if (!post) {
+      console.log(`Post not found for slug: ${slug}`)
       return null
     }
 
-    // Increment view count
-    await incrementPostViews(post.id)
+    // Increment view count (only for Firebase posts)
+    if (post.id && !post.id.startsWith('fallback-')) {
+      try {
+        await incrementPostViews(post.id)
+      } catch (error) {
+        console.error('Error incrementing post views:', error)
+        // Don't fail the entire request if view increment fails
+      }
+    }
 
     return post
   } catch (error) {
     console.error('Error fetching post:', error)
+    
+    // Try fallback data as last resort
+    try {
+      const fallbackPost = getFallbackPostBySlug(slug)
+      if (fallbackPost) {
+        console.log(`Using fallback data for slug: ${slug}`)
+        return fallbackPost
+      }
+    } catch (fallbackError) {
+      console.error('Error fetching fallback post:', fallbackError)
+    }
+    
     return null
   }
 }

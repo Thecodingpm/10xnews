@@ -293,11 +293,20 @@ export async function getPostById(id: string): Promise<Post | null> {
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   try {
+    // Check if Firebase is properly initialized
+    if (!db) {
+      console.log('Firebase not initialized, returning null')
+      return null
+    }
+
     // Use a simple query for slug only
     const q = query(postsCollection, where('slug', '==', slug))
     const snapshot = await getDocs(q)
     
-    if (snapshot.empty) return null
+    if (snapshot.empty) {
+      console.log(`No post found with slug: ${slug}`)
+      return null
+    }
     
     // Find the first published post with this slug
     let publishedPost = null
@@ -309,7 +318,10 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
       }
     }
     
-    if (!publishedPost) return null
+    if (!publishedPost) {
+      console.log(`No published post found with slug: ${slug}`)
+      return null
+    }
     
     const postData = publishedPost.data()
     

@@ -1,4 +1,5 @@
 import { getPosts as getFirebasePosts, getCategories as getFirebaseCategories } from '@/lib/firebase-data'
+import { getAllFallbackPosts } from '@/lib/fallback-data'
 // import PostCard from '@/components/blog/PostCard'
 // import { HeaderAd, SidebarAd } from '@/components/AdSlot'
 import { MagnifyingGlassIcon as SearchIcon } from '@heroicons/react/24/outline'
@@ -21,7 +22,13 @@ async function getPosts(searchParams: Awaited<BlogPageProps['searchParams']>) {
 
   try {
     // Get all published posts from Firebase
-    const allPosts = await getFirebasePosts()
+    let allPosts = await getFirebasePosts()
+    
+    // If Firebase fails or returns no posts, use fallback data
+    if (!Array.isArray(allPosts) || allPosts.length === 0) {
+      console.log('No posts from Firebase, using fallback data')
+      allPosts = getAllFallbackPosts()
+    }
     
     // Filter posts based on search parameters
     let filteredPosts = Array.isArray(allPosts) ? allPosts.filter(post => post.published) : []
