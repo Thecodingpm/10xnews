@@ -70,9 +70,9 @@ export interface User {
 }
 
 // Posts Collection
-const postsCollection = collection(db, 'posts')
-const categoriesCollection = collection(db, 'categories')
-const usersCollection = collection(db, 'users')
+const postsCollection = db ? collection(db, 'posts') : null
+const categoriesCollection = db ? collection(db, 'categories') : null
+const usersCollection = db ? collection(db, 'users') : null
 
 // Simple in-memory cache
 const cache = new Map<string, { data: unknown; timestamp: number }>()
@@ -97,6 +97,12 @@ export async function getPosts(whereClause?: unknown, orderByClause?: unknown, l
   if (cached && Array.isArray(cached)) return cached
 
   try {
+    // Check if Firebase is properly initialized
+    if (!db || !postsCollection) {
+      console.log('Firebase not initialized, returning empty array')
+      return []
+    }
+
     // For debugging, let's fetch all posts first
     let q = query(
       postsCollection, 
@@ -235,6 +241,12 @@ export async function getFeaturedPosts(limitCount: number = 3): Promise<Post[]> 
 
 export async function getPostById(id: string): Promise<Post | null> {
   try {
+    // Check if Firebase is properly initialized
+    if (!db || !postsCollection) {
+      console.log('Firebase not initialized, returning null')
+      return null
+    }
+
     const postDoc = await getDoc(doc(postsCollection, id))
     
     if (!postDoc.exists()) return null
@@ -294,7 +306,7 @@ export async function getPostById(id: string): Promise<Post | null> {
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   try {
     // Check if Firebase is properly initialized
-    if (!db) {
+    if (!db || !postsCollection) {
       console.log('Firebase not initialized, returning null')
       return null
     }
@@ -430,6 +442,12 @@ export async function incrementPostViews(id: string) {
 // Categories Functions
 export async function getCategories() {
   try {
+    // Check if Firebase is properly initialized
+    if (!db || !categoriesCollection) {
+      console.log('Firebase not initialized, returning empty array')
+      return []
+    }
+
     const q = query(categoriesCollection, orderBy('name', 'asc'))
     const snapshot = await getDocs(q)
     
