@@ -109,6 +109,13 @@ export async function getPosts(whereClause?: unknown, orderByClause?: unknown, l
     
     const snapshot = await getDocs(q)
     console.log('Firebase getPosts: Found', snapshot.docs.length, 'total posts')
+    
+    // If no posts found, return empty array instead of error
+    if (snapshot.empty) {
+      console.log('No posts found in Firebase, returning empty array')
+      return []
+    }
+    
     const posts: Post[] = []
     
     for (const docSnapshot of snapshot.docs) {
@@ -413,6 +420,12 @@ export async function getCategories() {
   try {
     const q = query(categoriesCollection, orderBy('name', 'asc'))
     const snapshot = await getDocs(q)
+    
+    // If no categories found, return empty array instead of error
+    if (snapshot.empty) {
+      console.log('No categories found in Firebase, returning empty array')
+      return []
+    }
     
     const categories: Category[] = []
     for (const docSnapshot of snapshot.docs) {
