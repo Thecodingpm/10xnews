@@ -30,9 +30,9 @@ async function seedSampleData() {
         updatedAt: new Date()
       },
       {
-        name: 'Technology',
-        slug: 'technology',
-        description: 'Tech news and updates',
+        name: 'Tech & Telecom',
+        slug: 'tech-telecom',
+        description: 'Technology and telecommunications news',
         color: '#3B82F6',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -42,6 +42,22 @@ async function seedSampleData() {
         slug: 'business',
         description: 'Business and economy news',
         color: '#8B5CF6',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        name: 'Education',
+        slug: 'education',
+        description: 'Education news and updates',
+        color: '#F59E0B',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        name: 'Health',
+        slug: 'health',
+        description: 'Health and medical news',
+        color: '#EF4444',
         createdAt: new Date(),
         updatedAt: new Date()
       }
