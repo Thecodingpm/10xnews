@@ -26,10 +26,10 @@ async function getCategoryPosts(slug: string) {
     }
 
     // Filter posts by category
-    const categoryPosts = posts.filter(post => 
+    const categoryPosts = Array.isArray(posts) ? posts.filter(post => 
       post.published && 
       post.category?.slug === slug
-    )
+    ) : []
 
     return {
       category,

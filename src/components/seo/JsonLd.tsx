@@ -1,7 +1,7 @@
 import Script from 'next/script'
 
 interface JsonLdProps {
-  data: any
+  data: Record<string, unknown>
 }
 
 export default function JsonLd({ data }: JsonLdProps) {

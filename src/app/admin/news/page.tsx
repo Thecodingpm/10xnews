@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowLeftIcon, CloudArrowDownIcon, PlayIcon, StopIcon, ClockIcon } from '@heroicons/react/24/outline'
 
 interface NewsPreview {
@@ -321,10 +322,12 @@ export default function NewsManagement() {
                   <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                     <div className="flex space-x-4">
                       {article.urlToImage && (
-                        <img
+                        <Image
                           src={article.urlToImage}
                           alt={article.title}
-                          className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
+                          width={80}
+                          height={80}
+                          className="object-cover rounded-lg flex-shrink-0"
                         />
                       )}
                       <div className="flex-1">

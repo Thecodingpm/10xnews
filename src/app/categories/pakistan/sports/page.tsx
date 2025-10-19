@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 interface SportsPageProps {
-  params: Promise<{}>
+  params: Promise<Record<string, never>>
 }
 
 async function getSportsPosts() {
@@ -19,7 +19,7 @@ async function getSportsPosts() {
     }
 
     // Filter posts by Pakistan sports
-    const sportsPosts = posts.filter(post => 
+    const sportsPosts = Array.isArray(posts) ? posts.filter(post => 
       post.published && 
       (post.category?.slug === 'pakistan-sports' || 
        (post.category?.slug === 'pakistan' && 
@@ -33,7 +33,7 @@ async function getSportsPosts() {
          post.excerpt?.toLowerCase().includes('cricket') ||
          post.excerpt?.toLowerCase().includes('football') ||
          post.excerpt?.toLowerCase().includes('hockey'))))
-    )
+    ) : []
 
     return {
       posts: sportsPosts,
@@ -53,7 +53,7 @@ export async function generateMetadata() {
   }
 }
 
-export default async function SportsPage({ params }: SportsPageProps) {
+export default async function SportsPage({}: SportsPageProps) {
   const data = await getSportsPosts()
 
   if (!data) {

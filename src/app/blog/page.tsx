@@ -3,6 +3,7 @@ import { getPosts as getFirebasePosts, getCategories as getFirebaseCategories } 
 // import { HeaderAd, SidebarAd } from '@/components/AdSlot'
 import { MagnifyingGlassIcon as SearchIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
+import Image from 'next/image'
 import type { Metadata } from 'next'
 
 interface BlogPageProps {
@@ -23,7 +24,7 @@ async function getPosts(searchParams: Awaited<BlogPageProps['searchParams']>) {
     const allPosts = await getFirebasePosts()
     
     // Filter posts based on search parameters
-    let filteredPosts = (allPosts || []).filter(post => post.published)
+    let filteredPosts = Array.isArray(allPosts) ? allPosts.filter(post => post.published) : []
     
     // Apply search filter
     if (searchParams.search) {
@@ -156,10 +157,12 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                     <div className="md:w-2/5">
                       <div className="aspect-video md:aspect-[4/3] bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
                         {post.coverImage ? (
-                          <img
+                          <Image
                             src={post.coverImage}
                             alt={post.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">

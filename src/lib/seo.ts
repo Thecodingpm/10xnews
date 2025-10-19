@@ -106,7 +106,7 @@ export function generateMetadata(config: SEOConfig): Metadata {
   return metadata
 }
 
-export function generateStructuredData(type: 'article' | 'website' | 'organization', data: any) {
+export function generateStructuredData(type: 'article' | 'website' | 'organization', data: Record<string, unknown>) {
   const baseUrl = defaultConfig.siteUrl
 
   switch (type) {
@@ -135,8 +135,8 @@ export function generateStructuredData(type: 'article' | 'website' | 'organizati
           '@type': 'WebPage',
           '@id': `${baseUrl}${data.canonical}`,
         },
-        ...(data.section && { articleSection: data.section }),
-        ...(data.tags && { keywords: data.tags.join(', ') }),
+        ...(data.section && typeof data.section === 'string' ? { articleSection: data.section } : {}),
+        ...(data.tags && Array.isArray(data.tags) ? { keywords: data.tags.join(', ') } : {}),
       }
 
     case 'website':

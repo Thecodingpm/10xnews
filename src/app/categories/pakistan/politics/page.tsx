@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 interface PoliticsPageProps {
-  params: Promise<{}>
+  params: Promise<Record<string, never>>
 }
 
 async function getPoliticsPosts() {
@@ -20,7 +20,7 @@ async function getPoliticsPosts() {
 
     // Filter posts by Pakistan politics - we'll look for posts with category slug 'pakistan-politics'
     // or posts in Pakistan category that contain 'politics' in their content/tags
-    const politicsPosts = posts.filter(post => 
+    const politicsPosts = Array.isArray(posts) ? posts.filter(post => 
       post.published && 
       (post.category?.slug === 'pakistan-politics' || 
        (post.category?.slug === 'pakistan' && 
@@ -28,7 +28,7 @@ async function getPoliticsPosts() {
          post.title?.toLowerCase().includes('political') ||
          post.excerpt?.toLowerCase().includes('politics') ||
          post.excerpt?.toLowerCase().includes('political'))))
-    )
+    ) : []
 
     return {
       posts: politicsPosts,
@@ -48,7 +48,7 @@ export async function generateMetadata() {
   }
 }
 
-export default async function PoliticsPage({ params }: PoliticsPageProps) {
+export default async function PoliticsPage({}: PoliticsPageProps) {
   const data = await getPoliticsPosts()
 
   if (!data) {

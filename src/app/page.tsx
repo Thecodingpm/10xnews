@@ -11,18 +11,18 @@ export const revalidate = 300 // Revalidate every 5 minutes
 
 export default async function Home() {
   
-  let featuredPosts: Array<{
-    id: string;
-    title: string;
-    slug: string;
-    excerpt: string;
-    coverImage: string | null;
-    publishedAt: Date | null;
-    readTime: number;
-    views: number;
-    author: { name: string | null };
-    category: { name: string; color: string | null } | null;
-  }> = []
+  // let featuredPosts: Array<{
+  //   id: string;
+  //   title: string;
+  //   slug: string;
+  //   excerpt: string;
+  //   coverImage: string | null;
+  //   publishedAt: Date | null;
+  //   readTime: number;
+  //   views: number;
+  //   author: { name: string | null };
+  //   category: { name: string; color: string | null } | null;
+  // }> = []
   let latestPosts: Array<{
     id: string;
     title: string;
@@ -39,17 +39,16 @@ export default async function Home() {
   try {
     // Try Firebase first, then fallback to Prisma if available
     try {
-      const [firebaseFeatured, firebaseLatest] = await Promise.all([
+      const [, firebaseLatest] = await Promise.all([
         getFeaturedPosts(3),
         getPosts(6)
       ])
-      featuredPosts = firebaseFeatured || []
-      latestPosts = firebaseLatest || []
-    } catch (firebaseError) {
-      
+      // featuredPosts = firebaseFeatured || []
+      latestPosts = Array.isArray(firebaseLatest) ? firebaseLatest : []
+    } catch {
       // Fallback to Prisma if Firebase fails
       if (prisma && process.env.DATABASE_URL) {
-        [featuredPosts, latestPosts] = await Promise.all([
+        [, latestPosts] = await Promise.all([
           prisma.post.findMany({
             where: { published: true, featured: true },
             include: {
@@ -74,8 +73,8 @@ export default async function Home() {
         ])
       }
     }
-  } catch (error) {
-    featuredPosts = []
+  } catch {
+    // featuredPosts = []
     latestPosts = []
   }
 

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 interface CulturePageProps {
-  params: Promise<{}>
+  params: Promise<Record<string, never>>
 }
 
 async function getCulturePosts() {
@@ -19,7 +19,7 @@ async function getCulturePosts() {
     }
 
     // Filter posts by Pakistan culture
-    const culturePosts = posts.filter(post => 
+    const culturePosts = Array.isArray(posts) ? posts.filter(post => 
       post.published && 
       (post.category?.slug === 'pakistan-culture' || 
        (post.category?.slug === 'pakistan' && 
@@ -34,7 +34,7 @@ async function getCulturePosts() {
          post.excerpt?.toLowerCase().includes('cultural') ||
          post.excerpt?.toLowerCase().includes('heritage') ||
          post.excerpt?.toLowerCase().includes('tradition'))))
-    )
+    ) : []
 
     return {
       posts: culturePosts,
@@ -54,7 +54,7 @@ export async function generateMetadata() {
   }
 }
 
-export default async function CulturePage({ params }: CulturePageProps) {
+export default async function CulturePage({}: CulturePageProps) {
   const data = await getCulturePosts()
 
   if (!data) {

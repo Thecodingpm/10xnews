@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 
 interface SessionUser {
@@ -335,12 +336,13 @@ export default function EditPostPage() {
                         Preview
                       </label>
                       <div className="relative w-full h-48 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
-                        <img
+                        <Image
                           src={formData.coverImage}
                           alt="Cover preview"
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none'
+                          fill
+                          className="object-cover"
+                          onError={() => {
+                            // Handle error if needed
                           }}
                         />
                       </div>

@@ -105,8 +105,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <JsonLd data={generateStructuredData('website', {})} />
-        <JsonLd data={generateStructuredData('organization', {})} />
+        {(() => {
+          const websiteData = generateStructuredData('website', {})
+          const orgData = generateStructuredData('organization', {})
+          return (
+            <>
+              {websiteData && <JsonLd data={websiteData} />}
+              {orgData && <JsonLd data={orgData} />}
+            </>
+          )
+        })()}
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

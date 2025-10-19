@@ -75,7 +75,7 @@ const categoriesCollection = collection(db, 'categories')
 const usersCollection = collection(db, 'users')
 
 // Simple in-memory cache
-const cache = new Map<string, { data: any; timestamp: number }>()
+const cache = new Map<string, { data: unknown; timestamp: number }>()
 const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
 function getCachedData(key: string) {
@@ -86,7 +86,7 @@ function getCachedData(key: string) {
   return null
 }
 
-function setCachedData(key: string, data: any) {
+function setCachedData(key: string, data: unknown) {
   cache.set(key, { data, timestamp: Date.now() })
 }
 
@@ -94,7 +94,7 @@ function setCachedData(key: string, data: any) {
 export async function getPosts(whereClause?: unknown, orderByClause?: unknown, limitCount?: number) {
   const cacheKey = `posts_${JSON.stringify({ whereClause, orderByClause, limitCount })}`
   const cached = getCachedData(cacheKey)
-  if (cached) return cached
+  if (cached && Array.isArray(cached)) return cached
 
   try {
     // For debugging, let's fetch all posts first
@@ -192,7 +192,7 @@ export async function getPosts(whereClause?: unknown, orderByClause?: unknown, l
 export async function getFeaturedPosts(limitCount: number = 3): Promise<Post[]> {
   const cacheKey = `featured_posts_${limitCount}`
   const cached = getCachedData(cacheKey)
-  if (cached) return cached
+  if (cached && Array.isArray(cached)) return cached
 
   try {
     const q = query(

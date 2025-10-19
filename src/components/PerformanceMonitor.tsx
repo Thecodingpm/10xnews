@@ -20,18 +20,18 @@ export default function PerformanceMonitor() {
           console.log('LCP:', entry.startTime)
         }
         if (entry.entryType === 'first-input') {
-          console.log('FID:', entry.processingStart - entry.startTime)
+          console.log('FID:', (entry as PerformanceEntry & { processingStart: number }).processingStart - entry.startTime)
         }
         if (entry.entryType === 'layout-shift') {
-          console.log('CLS:', (entry as any).value)
+          console.log('CLS:', (entry as PerformanceEntry & { value: number }).value)
         }
       }
     })
 
     try {
       observer.observe({ entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'] })
-    } catch (error) {
-      console.log('Performance Observer not supported:', error)
+    } catch {
+      console.log('Performance Observer not supported')
     }
 
     // Monitor page load time
@@ -42,8 +42,8 @@ export default function PerformanceMonitor() {
           console.log('Page Load Time:', navigation.loadEventEnd - navigation.fetchStart)
           console.log('DOM Content Loaded:', navigation.domContentLoadedEventEnd - navigation.fetchStart)
         }
-      } catch (error) {
-        console.log('Performance API not available:', error)
+      } catch {
+        console.log('Performance API not available')
       }
     }
 
@@ -53,7 +53,7 @@ export default function PerformanceMonitor() {
       try {
         observer.disconnect()
         window.removeEventListener('load', handleLoad)
-      } catch (error) {
+      } catch {
         // Ignore cleanup errors
       }
     }

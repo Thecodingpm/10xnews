@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 interface BreakingPageProps {
-  params: Promise<{}>
+  params: Promise<Record<string, never>>
 }
 
 async function getBreakingPosts() {
@@ -19,7 +19,7 @@ async function getBreakingPosts() {
     }
 
     // Filter posts by Pakistan breaking news
-    const breakingPosts = posts.filter(post => 
+    const breakingPosts = Array.isArray(posts) ? posts.filter(post => 
       post.published && 
       (post.category?.slug === 'pakistan-breaking' || 
        (post.category?.slug === 'pakistan' && 
@@ -31,7 +31,7 @@ async function getBreakingPosts() {
          post.excerpt?.toLowerCase().includes('breaking') ||
          post.excerpt?.toLowerCase().includes('urgent') ||
          post.excerpt?.toLowerCase().includes('latest'))))
-    )
+    ) : []
 
     return {
       posts: breakingPosts,
@@ -51,7 +51,7 @@ export async function generateMetadata() {
   }
 }
 
-export default async function BreakingPage({ params }: BreakingPageProps) {
+export default async function BreakingPage({}: BreakingPageProps) {
   const data = await getBreakingPosts()
 
   if (!data) {

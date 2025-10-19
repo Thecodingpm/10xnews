@@ -87,7 +87,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <div className="min-h-screen">
-      <JsonLd data={articleStructuredData} />
+      {articleStructuredData && <JsonLd data={articleStructuredData} />}
       <JsonLd data={breadcrumbData} />
 
       {/* Article */}

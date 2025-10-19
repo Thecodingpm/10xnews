@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 interface EconomyPageProps {
-  params: Promise<{}>
+  params: Promise<Record<string, never>>
 }
 
 async function getEconomyPosts() {
@@ -19,7 +19,7 @@ async function getEconomyPosts() {
     }
 
     // Filter posts by Pakistan economy
-    const economyPosts = posts.filter(post => 
+    const economyPosts = Array.isArray(posts) ? posts.filter(post => 
       post.published && 
       (post.category?.slug === 'pakistan-economy' || 
        (post.category?.slug === 'pakistan' && 
@@ -31,7 +31,7 @@ async function getEconomyPosts() {
          post.excerpt?.toLowerCase().includes('economic') ||
          post.excerpt?.toLowerCase().includes('business') ||
          post.excerpt?.toLowerCase().includes('finance'))))
-    )
+    ) : []
 
     return {
       posts: economyPosts,
@@ -51,7 +51,7 @@ export async function generateMetadata() {
   }
 }
 
-export default async function EconomyPage({ params }: EconomyPageProps) {
+export default async function EconomyPage({}: EconomyPageProps) {
   const data = await getEconomyPosts()
 
   if (!data) {

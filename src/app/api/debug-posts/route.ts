@@ -6,9 +6,9 @@ export async function GET() {
     console.log('Debug API: Fetching all posts...')
     const posts = await getPosts()
     
-    console.log('Debug API: Found', posts?.length || 0, 'posts')
+    console.log('Debug API: Found', Array.isArray(posts) ? posts.length : 0, 'posts')
     
-    const debugInfo = (posts || []).map(post => ({
+    const debugInfo = Array.isArray(posts) ? posts.map(post => ({
       id: post.id,
       title: post.title,
       published: post.published,
@@ -19,13 +19,13 @@ export async function GET() {
       slug: post.slug,
       author: post.author,
       category: post.category
-    }))
+    })) : []
     
     return NextResponse.json({ 
-      totalPosts: posts?.length || 0,
+      totalPosts: Array.isArray(posts) ? posts.length : 0,
       posts: debugInfo,
-      publishedPosts: (posts || []).filter(p => p.published).length,
-      unpublishedPosts: (posts || []).filter(p => !p.published).length
+      publishedPosts: Array.isArray(posts) ? posts.filter(p => p.published).length : 0,
+      unpublishedPosts: Array.isArray(posts) ? posts.filter(p => !p.published).length : 0
     })
   } catch (error) {
     console.error('Debug API Error:', error)

@@ -6,7 +6,7 @@ import JsonLd from '@/components/seo/JsonLd'
 import { generateBreadcrumbStructuredData } from '@/lib/seo'
 
 interface PakistanPageProps {
-  params: Promise<{}>
+  params: Promise<Record<string, never>>
 }
 
 async function getPakistanPosts() {
@@ -27,10 +27,10 @@ async function getPakistanPosts() {
     }
 
     // Filter posts by Pakistan category
-    const pakistanPosts = posts.filter(post => 
+    const pakistanPosts = Array.isArray(posts) ? posts.filter(post => 
       post.published && 
       post.category?.slug === 'pakistan'
-    )
+    ) : []
 
     return {
       category: pakistanCategory,
@@ -77,14 +77,14 @@ export async function generateMetadata() {
   }
 }
 
-export default async function PakistanPage({ params }: PakistanPageProps) {
+export default async function PakistanPage({}: PakistanPageProps) {
   const data = await getPakistanPosts()
 
   if (!data) {
     notFound()
   }
 
-  const { category, posts, totalPosts } = data
+  const { posts, totalPosts } = data
 
   const subcategories = [
     { name: 'Politics', href: '/categories/pakistan/politics', description: 'Political news and analysis from Pakistan' },

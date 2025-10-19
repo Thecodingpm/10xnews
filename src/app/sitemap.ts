@@ -16,7 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         getCategories()
       ])
       
-      if (firebasePosts) {
+      if (Array.isArray(firebasePosts)) {
         posts = firebasePosts
           .filter(post => post.published)
           .map(post => ({
@@ -31,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           updatedAt: cat.updatedAt || new Date()
         }))
       }
-    } catch (firebaseError) {
+    } catch {
       // Fallback to Prisma if Firebase fails
       if (prisma && process.env.DATABASE_URL) {
         // Get all published posts
