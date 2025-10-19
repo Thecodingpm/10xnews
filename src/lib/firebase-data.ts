@@ -208,6 +208,12 @@ export async function getFeaturedPosts(limitCount: number = 3): Promise<Post[]> 
   if (cached && Array.isArray(cached)) return cached
 
   try {
+    // Check if Firebase is properly initialized
+    if (!db || !postsCollection) {
+      console.log('Firebase not initialized, returning empty array')
+      return []
+    }
+
     const q = query(
       postsCollection, 
       where('published', '==', true),
