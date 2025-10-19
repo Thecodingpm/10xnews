@@ -1,6 +1,5 @@
 import { getPosts, getCategories } from '@/lib/firebase-data'
 import PostCard from '@/components/blog/PostCard'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import JsonLd from '@/components/seo/JsonLd'
 import { generateBreadcrumbStructuredData } from '@/lib/seo'
@@ -63,7 +62,7 @@ export default async function EducationPage({}: EducationPageProps) {
     notFound()
   }
 
-  const { category, posts, totalPosts } = data
+  const { posts, totalPosts } = data
 
   const breadcrumbData = generateBreadcrumbStructuredData([
     { name: 'Home', url: '/' },

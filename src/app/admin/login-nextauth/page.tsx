@@ -15,7 +15,7 @@ export default function AdminLoginNextAuth() {
   useEffect(() => {
     // Check if user is already logged in
     getSession().then((session) => {
-      if (session?.user?.role === 'ADMIN') {
+      if ((session?.user as any)?.role === 'ADMIN') {
         router.push('/admin/dashboard')
       }
     })
@@ -38,7 +38,7 @@ export default function AdminLoginNextAuth() {
       } else if (result?.ok) {
         router.push('/admin/dashboard')
       }
-    } catch (error) {
+    } catch {
       setError('Login failed')
     }
     
