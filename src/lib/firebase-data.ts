@@ -153,9 +153,9 @@ export async function getPosts(whereClause?: unknown, orderByClause?: unknown, l
       console.log('Post:', post.title, 'published:', post.published, 'publishedAt:', post.publishedAt)
       
       // Get author data
-      if (post.authorId) {
+      if (post.authorId && usersCollection) {
         try {
-          const authorDoc = await getDoc(doc(usersCollection, post.authorId))
+          const authorDoc = await getDoc(doc(usersCollection!, post.authorId))
           if (authorDoc.exists()) {
             const authorData = authorDoc.data()
             post.author = {
@@ -170,9 +170,9 @@ export async function getPosts(whereClause?: unknown, orderByClause?: unknown, l
       }
       
       // Get category data
-      if (post.categoryId) {
+      if (post.categoryId && categoriesCollection) {
         try {
-          const categoryDoc = await getDoc(doc(categoriesCollection, post.categoryId))
+          const categoryDoc = await getDoc(doc(categoriesCollection!, post.categoryId))
           if (categoryDoc.exists()) {
             const categoryData = categoryDoc.data()
             post.category = {
@@ -265,7 +265,7 @@ export async function getPostById(id: string): Promise<Post | null> {
     // Get author data
     if (post.authorId) {
       try {
-        const authorDoc = await getDoc(doc(usersCollection, post.authorId))
+        const authorDoc = await getDoc(doc(usersCollection!, post.authorId))
         if (authorDoc.exists()) {
           const authorData = authorDoc.data()
           post.author = {
@@ -282,7 +282,7 @@ export async function getPostById(id: string): Promise<Post | null> {
     // Get category data
     if (post.categoryId) {
       try {
-        const categoryDoc = await getDoc(doc(categoriesCollection, post.categoryId))
+        const categoryDoc = await getDoc(doc(categoriesCollection!, post.categoryId))
         if (categoryDoc.exists()) {
           const categoryData = categoryDoc.data()
           post.category = {
@@ -348,7 +348,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     // Get author data
     if (post.authorId) {
       try {
-        const authorDoc = await getDoc(doc(usersCollection, post.authorId))
+        const authorDoc = await getDoc(doc(usersCollection!, post.authorId))
         if (authorDoc.exists()) {
           const authorData = authorDoc.data()
           post.author = {
@@ -365,7 +365,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     // Get category data
     if (post.categoryId) {
       try {
-        const categoryDoc = await getDoc(doc(categoriesCollection, post.categoryId))
+        const categoryDoc = await getDoc(doc(categoriesCollection!, post.categoryId))
         if (categoryDoc.exists()) {
           const categoryData = categoryDoc.data()
           post.category = {
