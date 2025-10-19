@@ -5,6 +5,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ClockIcon, EyeIcon, CalendarIcon, ArrowLeftIcon } from '@heroicons/react/24/outline'
 import MultiImageContent from '@/components/blog/MultiImageContent'
+import JsonLd from '@/components/seo/JsonLd'
+import { generateStructuredData, generateBreadcrumbStructuredData, generateMetadata as generateSEOMetadata } from '@/lib/seo'
 import type { Metadata } from 'next'
 
 interface BlogPostPageProps {
@@ -35,41 +37,24 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
   if (!post) {
     return {
-      title: 'Post Not Found',
+      title: 'Post Not Found | 10xNews',
+      description: 'The requested article could not be found.',
     }
   }
 
-  return {
+  return generateSEOMetadata({
     title: post.seoTitle || post.title,
     description: post.seoDescription || post.excerpt,
     keywords: post.keywords,
-    authors: [{ name: post.author.name || '10xNews Staff' }],
-    openGraph: {
-      title: post.seoTitle || post.title,
-      description: post.seoDescription || post.excerpt,
-      type: 'article',
-      publishedTime: post.publishedAt?.toISOString(),
-      modifiedTime: post.updatedAt.toISOString(),
-      authors: [post.author.name || '10xNews Staff'],
-      images: post.coverImage ? [
-        {
-          url: post.coverImage,
-          width: 1200,
-          height: 630,
-          alt: post.title,
-        }
-      ] : [],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: post.seoTitle || post.title,
-      description: post.seoDescription || post.excerpt,
-      images: post.coverImage ? [post.coverImage] : [],
-    },
-    alternates: {
-      canonical: `/blog/${post.slug}`,
-    },
-  }
+    canonical: `/blog/${post.slug}`,
+    ogImage: post.coverImage || undefined,
+    ogType: 'article',
+    publishedTime: post.publishedAt?.toISOString(),
+    modifiedTime: post.updatedAt.toISOString(),
+    author: post.author.name || '10xNews Staff',
+    section: post.category?.name,
+    tags: post.tags,
+  })
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
@@ -80,8 +65,30 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     notFound()
   }
 
+  // Generate structured data
+  const articleStructuredData = generateStructuredData('article', {
+    title: post.title,
+    description: post.excerpt,
+    image: post.coverImage,
+    publishedTime: post.publishedAt?.toISOString(),
+    modifiedTime: post.updatedAt.toISOString(),
+    author: post.author.name || '10xNews Staff',
+    canonical: `/blog/${post.slug}`,
+    section: post.category?.name,
+    tags: post.tags,
+  })
+
+  const breadcrumbData = generateBreadcrumbStructuredData([
+    { name: 'Home', url: '/' },
+    { name: 'Blog', url: '/blog' },
+    ...(post.category ? [{ name: post.category.name, url: `/categories/${post.category.slug}` }] : []),
+    { name: post.title, url: `/blog/${post.slug}` }
+  ])
+
   return (
     <div className="min-h-screen">
+      <JsonLd data={articleStructuredData} />
+      <JsonLd data={breadcrumbData} />
 
       {/* Article */}
       <article className="max-w-4xl mx-auto px-4 py-8">

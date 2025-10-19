@@ -2,6 +2,8 @@ import { getPosts, getCategories } from '@/lib/firebase-data'
 import PostCard from '@/components/blog/PostCard'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import JsonLd from '@/components/seo/JsonLd'
+import { generateBreadcrumbStructuredData } from '@/lib/seo'
 
 interface PakistanPageProps {
   params: Promise<{}>
@@ -43,9 +45,35 @@ async function getPakistanPosts() {
 
 export async function generateMetadata() {
   return {
-    title: 'Pakistan News | 10xNews',
-    description: 'Latest news and articles about Pakistan. Stay updated with politics, economy, sports, culture, and breaking news from Pakistan.',
-    keywords: ['Pakistan', 'news', 'politics', 'economy', 'sports', 'culture', 'breaking news', '10xNews']
+    title: 'Pakistan News - Latest Updates & Breaking News',
+    description: 'Stay informed with the latest Pakistan news covering politics, economy, sports, culture, and breaking developments. Comprehensive coverage of Pakistan affairs with real-time updates.',
+    keywords: [
+      'Pakistan news', 'Pakistan politics', 'Pakistan economy', 'Pakistan sports', 
+      'Pakistan culture', 'breaking news Pakistan', 'Pakistan current affairs',
+      'Pakistan government', 'Pakistan business', 'Pakistan technology', '10xNews'
+    ],
+    openGraph: {
+      title: 'Pakistan News - Latest Updates & Breaking News',
+      description: 'Stay informed with the latest Pakistan news covering politics, economy, sports, culture, and breaking developments.',
+      type: 'website',
+      images: [
+        {
+          url: '/og-pakistan.jpg',
+          width: 1200,
+          height: 630,
+          alt: 'Pakistan News - Latest Updates & Breaking News',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Pakistan News - Latest Updates & Breaking News',
+      description: 'Stay informed with the latest Pakistan news covering politics, economy, sports, culture, and breaking developments.',
+      images: ['/og-pakistan.jpg'],
+    },
+    alternates: {
+      canonical: '/categories/pakistan',
+    },
   }
 }
 
@@ -66,8 +94,14 @@ export default async function PakistanPage({ params }: PakistanPageProps) {
     { name: 'Breaking News', href: '/categories/pakistan/breaking', description: 'Latest breaking news from Pakistan' },
   ]
 
+  const breadcrumbData = generateBreadcrumbStructuredData([
+    { name: 'Home', url: '/' },
+    { name: 'Pakistan News', url: '/categories/pakistan' }
+  ])
+
   return (
     <div className="min-h-screen">
+      <JsonLd data={breadcrumbData} />
       {/* Header */}
       <div className="bg-gradient-to-r from-green-600 to-white text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

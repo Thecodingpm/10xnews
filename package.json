@@ -10,7 +10,8 @@
     "seed": "tsx scripts/simple-seed.ts",
     "seed-firebase": "tsx scripts/firebase-sample-data.ts",
     "seed-firebase-simple": "tsx scripts/firebase-simple-seed.ts",
-    "perf-test": "node scripts/performance-test.js"
+    "perf-test": "node scripts/performance-test.js",
+    "seo-test": "node scripts/seo-test.js"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",
