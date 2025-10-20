@@ -253,7 +253,7 @@ export async function getPostById(id: string): Promise<Post | null> {
       return null
     }
 
-    const postDoc = await getDoc(doc(postsCollection, id))
+    const postDoc = await getDoc(doc(postsCollection!, id))
     
     if (!postDoc.exists()) return null
     
@@ -414,6 +414,11 @@ export async function createPost(postData: Omit<Post, 'id' | 'createdAt' | 'upda
 
 export async function updatePost(id: string, postData: Partial<Post>) {
   try {
+    // Check if Firebase is properly initialized
+    if (!db || !postsCollection) {
+      throw new Error('Firebase not initialized')
+    }
+
     const postRef = doc(postsCollection, id)
     await updateDoc(postRef, {
       ...postData,
@@ -428,6 +433,11 @@ export async function updatePost(id: string, postData: Partial<Post>) {
 
 export async function deletePost(id: string) {
   try {
+    // Check if Firebase is properly initialized
+    if (!db || !postsCollection) {
+      throw new Error('Firebase not initialized')
+    }
+
     const postRef = doc(postsCollection, id)
     await deleteDoc(postRef)
     return true
@@ -439,6 +449,12 @@ export async function deletePost(id: string) {
 
 export async function incrementPostViews(id: string) {
   try {
+    // Check if Firebase is properly initialized
+    if (!db || !postsCollection) {
+      console.log('Firebase not initialized, skipping view increment')
+      return
+    }
+
     const postRef = doc(postsCollection, id)
     await updateDoc(postRef, {
       views: increment(1)
