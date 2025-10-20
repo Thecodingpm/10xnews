@@ -394,6 +394,11 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
 
 export async function createPost(postData: Omit<Post, 'id' | 'createdAt' | 'updatedAt'>) {
   try {
+    // Check if Firebase is properly initialized
+    if (!db || !postsCollection) {
+      throw new Error('Firebase not initialized')
+    }
+
     const now = new Date()
     const docRef = await addDoc(postsCollection, {
       ...postData,
@@ -483,6 +488,11 @@ export async function getCategories() {
 
 export async function createCategory(categoryData: Omit<Category, 'id' | 'createdAt' | 'updatedAt'>) {
   try {
+    // Check if Firebase is properly initialized
+    if (!db || !categoriesCollection) {
+      throw new Error('Firebase not initialized')
+    }
+
     const now = new Date()
     const docRef = await addDoc(categoriesCollection, {
       ...categoryData,
@@ -521,6 +531,11 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 
 export async function createUser(userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) {
   try {
+    // Check if Firebase is properly initialized
+    if (!db || !usersCollection) {
+      throw new Error('Firebase not initialized')
+    }
+
     const now = new Date()
     const docRef = await addDoc(usersCollection, {
       ...userData,
