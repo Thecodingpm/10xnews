@@ -525,6 +525,12 @@ export async function createCategory(categoryData: Omit<Category, 'id' | 'create
 // Users Functions
 export async function getUserByEmail(email: string): Promise<User | null> {
   try {
+    // Check if Firebase is properly initialized
+    if (!db || !usersCollection) {
+      console.log('Firebase not initialized, returning null')
+      return null
+    }
+
     const q = query(usersCollection, where('email', '==', email))
     const snapshot = await getDocs(q)
     
